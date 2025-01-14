@@ -23,6 +23,14 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.mp3$/,
+      loader: 'ignore-loader',
+      include: /music/,
+    });
+    return config;
+  },
 }
 
 mergeConfig(nextConfig, userConfig)
