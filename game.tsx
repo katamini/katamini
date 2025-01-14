@@ -78,16 +78,23 @@ const Game: React.FC = () => {
     audio.loop = true
     audio.volume = 0.5
     audioRef.current = audio
+
+    const playAudio = () => {
+      audio.play().catch(error => {
+        console.log('Failed to play audio:', error)
+      })
+    }
   
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        audio.play()
+        playAudio()
       } else {
         audio.pause()
       }
     }
   
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    playAudio() // Try to play audio on load
   
     // Cleanup
     return () => {
