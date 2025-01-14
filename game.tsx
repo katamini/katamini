@@ -38,9 +38,9 @@ const gameObjects: GameObject[] = [
 const sizeTiers = [
   { min: 0, max: 2, growthRate: 0.3 },
   { min: 2, max: 5, growthRate: 0.25 },
-  { min: 5, max: 10, growthRate: 0.2 },
-  { min: 10, max: 20, growthRate: 0.15 },
-  { min: 20, max: Infinity, growthRate: 0.1 },
+  { min: 5, max: 10, growthRate: 0.25 },
+  { min: 10, max: 20, growthRate: 0.25 },
+  { min: 20, max: Infinity, growthRate: 0.15 },
 ]
 // Multiply objects for better distribution
 const distributeObjects = (objects: GameObject[]): GameObject[] => {
@@ -94,7 +94,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     const audio = new Audio('music/katamini_01.mp3')
     audio.loop = true
-    audio.volume = 0.5
+    audio.volume = 0.4
     audioRef.current = audio
 
     const playAudio = () => {
