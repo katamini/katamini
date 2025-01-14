@@ -11,28 +11,28 @@ import type { GameObject, GameState } from './types/game'
 // Organized game objects by size tiers
 const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
-  { type: 'paperclip', size: 0.5, model: '/models/paperclip.glb', position: [1, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#A1A1A1' },
-  { type: 'eraser', size: 1, model: '/models/eraser.glb', position: [-1, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#F48FB1' },
-  { type: 'coin', size: 1.5, model: '/models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 1, color: '#FFD700' },
+  { type: 'paperclip', size: 0.5, model: 'models/paperclip.glb', position: [1, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#A1A1A1' },
+  { type: 'eraser', size: 1, model: 'models/eraser.glb', position: [-1, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#F48FB1' },
+  { type: 'coin', size: 1.5, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 1, color: '#FFD700' },
   
   // Tier 2 (2-5cm)
-  { type: 'pencil', size: 2.5, model: '/models/pencil.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 1, color: '#4CAF50' },
-  { type: 'spoon', size: 3, model: '/models/spoon.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 1, color: '#9E9E9E' },
-  { type: 'toy_car', size: 4, model: '/models/toy_car.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3' },
+  { type: 'pencil', size: 2.5, model: 'models/pencil.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 1, color: '#4CAF50' },
+  { type: 'spoon', size: 3, model: 'models/spoon.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 1, color: '#9E9E9E' },
+  { type: 'toy_car', size: 4, model: 'models/toy_car.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3' },
   
   // Tier 3 (5-10cm)
-  { type: 'mug', size: 6, model: '/models/mug.glb', position: [4, 0, -3], rotation: [0, 0, 0], scale: 1, color: '#FF5722' },
-  { type: 'book', size: 8, model: '/models/book.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 1, color: '#795548' },
-  { type: 'plate', size: 9, model: '/models/plate.glb', position: [5, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#E0E0E0' },
+  { type: 'mug', size: 6, model: 'models/mug.glb', position: [4, 0, -3], rotation: [0, 0, 0], scale: 1, color: '#FF5722' },
+  { type: 'book', size: 8, model: 'models/book.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 1, color: '#795548' },
+  { type: 'plate', size: 9, model: 'models/plate.glb', position: [5, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#E0E0E0' },
   
   // Tier 4 (10-20cm)
-  { type: 'laptop', size: 12, model: '/models/laptop.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 1, color: '#9C27B0' },
-  { type: 'box', size: 15, model: '/models/box.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63' },
-  { type: 'chair', size: 18, model: '/models/chair.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548' },
+  { type: 'laptop', size: 12, model: 'models/laptop.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 1, color: '#9C27B0' },
+  { type: 'box', size: 15, model: 'models/box.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63' },
+  { type: 'chair', size: 18, model: 'models/chair.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548' },
   
   // Tier 5 (20cm+)
-  { type: 'table', size: 25, model: '/models/table.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037' },
-  { type: 'desk', size: 30, model: '/models/desk.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 1, color: '#3E2723' },
+  { type: 'table', size: 25, model: 'models/table.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037' },
+  { type: 'desk', size: 30, model: 'models/desk.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 1, color: '#3E2723' },
 ]
 // Size tiers for controlled growth
 const sizeTiers = [
