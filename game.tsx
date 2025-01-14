@@ -446,6 +446,7 @@ const Game: React.FC = () => {
     <>
       <div ref={mountRef} />
       <SizeIndicator size={gameState.playerSize} />
+      <audio ref={audioRef} />
     </>
   )
 }
