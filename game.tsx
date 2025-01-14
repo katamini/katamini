@@ -74,7 +74,7 @@ const Game: React.FC = () => {
 
   // music
   useEffect(() => {
-    const audio = new Audio('/music/katamini_01.mp3')
+    const audio = new Audio('music/katamini_01.mp3')
     audio.loop = true
     audio.volume = 0.5
     audioRef.current = audio
