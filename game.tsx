@@ -8,9 +8,6 @@ import { SizeIndicator } from './components/size-indicator'
 import { auraVertexShader, auraFragmentShader } from './shaders/aura'
 import type { GameObject, GameState } from './types/game'
 
-// General State
-const [userInteracted, setUserInteracted] = useState(false);
-
 // Organized game objects by size tiers
 const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
@@ -74,6 +71,7 @@ const Game: React.FC = () => {
     collectedObjects: [],
     timeElapsed: 0,
   })
+  const [userInteracted, setUserInteracted] = useState(false);
 
   // readystate
   useEffect(() => {
@@ -82,15 +80,16 @@ const Game: React.FC = () => {
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('keydown', handleUserInteraction);
     };
-  
+
     window.addEventListener('click', handleUserInteraction);
     window.addEventListener('keydown', handleUserInteraction);
-  
+
     return () => {
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('keydown', handleUserInteraction);
     };
   }, []);
+  
   // music
   useEffect(() => {
     const audio = new Audio('music/katamini_01.mp3')
@@ -105,20 +104,19 @@ const Game: React.FC = () => {
     }
 
     if (userInteracted) {
-      playAudio;
+      playAudio();
     }
-  
+
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && userInteracted) {
         playAudio()
       } else {
         audio.pause()
       }
     }
-  
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
-  
-    // Cleanup
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (audioRef.current) {
@@ -126,7 +124,7 @@ const Game: React.FC = () => {
         audioRef.current = null
       }
     }
-  }, [])
+  }, [userInteracted])
 
   // game
   useEffect(() => {
