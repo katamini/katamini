@@ -218,6 +218,10 @@ const Game: React.FC = () => {
         model.rotation.set(...obj.rotation);
         model.scale.setScalar(obj.size * 0.1); // Respect the size
         model.userData.size = obj.size; // Set userData.size for interaction logic
+    
+        // Adjust position to be above the floor
+        model.position.y = obj.size * 0.05;
+    
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             (child as THREE.Mesh).castShadow = true;
@@ -244,6 +248,10 @@ const Game: React.FC = () => {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         mesh.userData.size = obj.size; // Set userData.size for interaction logic
+    
+        // Adjust position to be above the floor
+        mesh.position.y = obj.size * 0.005;
+    
         scene.add(mesh);
         objects.push(mesh);
     
