@@ -215,14 +215,14 @@ const Game: React.FC = () => {
       loader.load(obj.model, (gltf) => {
         const model = gltf.scene;
         model.position.set(...obj.position);
-        
+    
         // Add random rotation
         model.rotation.set(
           obj.rotation[0] + Math.random() * Math.PI,
           obj.rotation[1] + Math.random() * Math.PI,
           obj.rotation[2] + Math.random() * Math.PI
         );
-        
+    
         model.scale.setScalar(obj.size * 0.1); // Respect the size
         model.userData.size = obj.size; // Set userData.size for interaction logic
     
@@ -239,7 +239,7 @@ const Game: React.FC = () => {
         objects.push(model);
     
         // Create aura
-        const auraGeometry = new THREE.SphereGeometry(obj.size * 0.06, 32, 32);
+        const auraGeometry = new THREE.SphereGeometry(obj.size * 0.15, 32, 32);
         const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
         auraMesh.scale.multiplyScalar(1.2);
         auraMesh.visible = false;
@@ -251,14 +251,7 @@ const Game: React.FC = () => {
         const material = new THREE.MeshStandardMaterial({ color: obj.color });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.set(...obj.position);
-        
-        // Add random rotation to default block
-        mesh.rotation.set(
-          obj.rotation[0] + Math.random() * Math.PI,
-          obj.rotation[1] + Math.random() * Math.PI,
-          obj.rotation[2] + Math.random() * Math.PI
-        );
-        
+        mesh.rotation.set(...obj.rotation);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         mesh.userData.size = obj.size; // Set userData.size for interaction logic
