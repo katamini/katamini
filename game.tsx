@@ -8,6 +8,9 @@ import { SizeIndicator } from './components/size-indicator'
 import { auraVertexShader, auraFragmentShader } from './shaders/aura'
 import type { GameObject, GameState } from './types/game'
 
+// General State
+const [userInteracted, setUserInteracted] = useState(false);
+
 // Organized game objects by size tiers
 const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
@@ -72,6 +75,22 @@ const Game: React.FC = () => {
     timeElapsed: 0,
   })
 
+  // readystate
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setUserInteracted(true);
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
+  
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+  
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
+  }, []);
   // music
   useEffect(() => {
     const audio = new Audio('music/katamini_01.mp3')
@@ -84,6 +103,10 @@ const Game: React.FC = () => {
         console.log('Failed to play audio:', error)
       })
     }
+
+    if (userInteracted) {
+      playAudio;
+    }
   
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -94,7 +117,6 @@ const Game: React.FC = () => {
     }
   
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    playAudio() // Try to play audio on load
   
     // Cleanup
     return () => {
