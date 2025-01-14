@@ -72,6 +72,7 @@ const Game: React.FC = () => {
     timeElapsed: 0,
   })
   const [userInteracted, setUserInteracted] = useState(false);
+  const loader = new GLTFLoader();
 
   // readystate
   useEffect(() => {
@@ -211,26 +212,49 @@ const Game: React.FC = () => {
     const auras: THREE.Mesh[] = []
     
     distributeObjects(gameObjects).forEach(obj => {
-      // Create object
-      const geometry = new THREE.BoxGeometry(obj.size * 0.1, obj.size * 0.1, obj.size * 0.1)
-      const material = new THREE.MeshStandardMaterial({ color: obj.color })
-      const mesh = new THREE.Mesh(geometry, material)
-      mesh.position.set(...obj.position)
-      mesh.rotation.set(...obj.rotation)
-      mesh.castShadow = true
-      mesh.receiveShadow = true
-      mesh.userData.size = obj.size
-      scene.add(mesh)
-      objects.push(mesh)
-
-      // Create aura
-      const auraGeometry = new THREE.SphereGeometry(obj.size * 0.06, 32, 32)
-      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone())
-      auraMesh.scale.multiplyScalar(1.2)
-      auraMesh.visible = false
-      mesh.add(auraMesh)
-      auras.push(auraMesh)
-    })
+      loader.load(obj.model, (gltf) => {
+        const model = gltf.scene;
+        model.position.set(...obj.position);
+        model.rotation.set(...obj.rotation);
+        model.scale.setScalar(obj.scale);
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            (child as THREE.Mesh).castShadow = true;
+            (child as THREE.Mesh).receiveShadow = true;
+          }
+        });
+        scene.add(model);
+        objects.push(model);
+    
+        // Create aura
+        const auraGeometry = new THREE.SphereGeometry(obj.size * 0.06, 32, 32);
+        const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+        auraMesh.scale.multiplyScalar(1.2);
+        auraMesh.visible = false;
+        model.add(auraMesh);
+        auras.push(auraMesh);
+      }, undefined, () => {
+        // If loading fails, create a default block
+        const geometry = new THREE.BoxGeometry(obj.size * 0.1, obj.size * 0.1, obj.size * 0.1);
+        const material = new THREE.MeshStandardMaterial({ color: obj.color });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(...obj.position);
+        mesh.rotation.set(...obj.rotation);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.userData.size = obj.size;
+        scene.add(mesh);
+        objects.push(mesh);
+    
+        // Create aura
+        const auraGeometry = new THREE.SphereGeometry(obj.size * 0.06, 32, 32);
+        const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+        auraMesh.scale.multiplyScalar(1.2);
+        auraMesh.visible = false;
+        mesh.add(auraMesh);
+        auras.push(auraMesh);
+      });
+    });
 
     // Player movement properties
     const playerVelocity = new THREE.Vector3()
