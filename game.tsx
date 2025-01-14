@@ -216,7 +216,8 @@ const Game: React.FC = () => {
         const model = gltf.scene;
         model.position.set(...obj.position);
         model.rotation.set(...obj.rotation);
-        model.scale.setScalar(obj.scale);
+        model.scale.setScalar(obj.size * 0.1); // Respect the size
+        model.userData.size = obj.size; // Set userData.size for interaction logic
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             (child as THREE.Mesh).castShadow = true;
@@ -242,7 +243,7 @@ const Game: React.FC = () => {
         mesh.rotation.set(...obj.rotation);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
-        mesh.userData.size = obj.size;
+        mesh.userData.size = obj.size; // Set userData.size for interaction logic
         scene.add(mesh);
         objects.push(mesh);
     
