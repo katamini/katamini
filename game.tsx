@@ -8,6 +8,9 @@ import { SizeIndicator } from './components/size-indicator'
 import { auraVertexShader, auraFragmentShader } from './shaders/aura'
 import type { GameObject, GameState } from './types/game'
 
+import kataminiAudio from './music/katamini_01.mp3' // Import the audio file
+const audioRef = useRef<HTMLAudioElement | null>(null)
+
 // Organized game objects by size tiers
 const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
@@ -73,6 +76,33 @@ const Game: React.FC = () => {
     timeElapsed: 0,
   })
 
+  // music
+  useEffect(() => {
+    const audio = new Audio(kataminiAudio)
+    audio.loop = true
+    audio.volume = 0.5
+    audioRef.current = audio
+  
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        audio.play()
+      } else {
+        audio.pause()
+      }
+    }
+  
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+  
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+    }
+  }, [])
+  // game
   useEffect(() => {
     if (!mountRef.current) return
 
