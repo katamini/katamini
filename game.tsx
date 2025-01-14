@@ -77,6 +77,15 @@ const Game: React.FC = () => {
   const [userInteracted, setUserInteracted] = useState(false);
   const loader = new GLTFLoader();
 
+  const playRandomSound = (sounds: string[]) => {
+      const randomIndex = Math.floor(Math.random() * sounds.length);
+      const sound = new Audio(sounds[randomIndex]);
+      sound.volume = 0.4;
+      sound.play().catch(error => {
+        console.log('Failed to play sound:', error);
+      });
+    };
+
   // readystate
   useEffect(() => {
     const handleUserInteraction = () => {
@@ -107,15 +116,6 @@ const Game: React.FC = () => {
     const playAudio = () => {
       audio.play().catch((error) => {
         console.log("Failed to play audio:", error);
-      });
-    };
-
-    const playRandomSound = (sounds: string[]) => {
-      const randomIndex = Math.floor(Math.random() * sounds.length);
-      const sound = new Audio(sounds[randomIndex]);
-      sound.volume = 0.4;
-      sound.play().catch(error => {
-        console.log('Failed to play sound:', error);
       });
     };
 
