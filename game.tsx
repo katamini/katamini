@@ -48,7 +48,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
   objects.forEach(obj => {
     const count = obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1.2) * 0.8
+      const distance = Math.pow(obj.size, 1.2) * 0.5
       const angle = Math.random() * Math.PI * 2
       distributed.push({
         ...obj,
