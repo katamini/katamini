@@ -417,11 +417,11 @@ const Game: React.FC = () => {
       player.position.y = Math.max(player.scale.y * 0.5, player.position.y)
 
       // Rotate collected objects container
-      // collectedObjectsContainer.rotation.y += 0.01
+      collectedObjectsContainer.rotation.y += 0.05
 
       // Update camera zoom based on player size
-      const targetZoom = THREE.MathUtils.clamp(player.scale.x * 6, minZoom, maxZoom)
-      currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, 0.05)
+      const targetZoom = THREE.MathUtils.clamp(player.scale.x * 5, minZoom, maxZoom)
+      currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, 0.1)
       cameraOffset.z = currentZoom
 
       // Update camera position
