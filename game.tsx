@@ -110,7 +110,17 @@ const Game: React.FC = () => {
       });
     };
 
+    const playRandomSound = (sounds: string[]) => {
+      const randomIndex = Math.floor(Math.random() * sounds.length);
+      const sound = new Audio(sounds[randomIndex]);
+      sound.volume = 0.4;
+      sound.play().catch(error => {
+        console.log('Failed to play sound:', error);
+      });
+    };
+
     if (userInteracted) {
+      playRandomSound(['music/effects/01.mp3', 'music/effects/02.mp3', 'music/effects/03.mp3', 'music/effects/04.mp3', 'music/effects/05.mp3']);
       playAudio();
     }
 
@@ -118,6 +128,7 @@ const Game: React.FC = () => {
       if (document.visibilityState === "visible" && userInteracted) {
         playAudio();
       } else {
+        playRandomSound(['music/effects/01.mp3', 'music/effects/02.mp3', 'music/effects/03.mp3', 'music/effects/04.mp3', 'music/effects/05.mp3']);
         audio.pause();
       }
     };
@@ -319,6 +330,8 @@ const Game: React.FC = () => {
     camera.position.copy(player.position).add(cameraOffset);
     camera.lookAt(player.position);
 
+    let finished = false;
+
     // Game loop
     let time = 0;
     const animate = () => {
@@ -339,6 +352,13 @@ const Game: React.FC = () => {
         { userData: { size: Infinity } }
       );
 
+       // Add logic to check if all objects are captured and play a sound
+      if (objects.length === 0 && finished = false) {
+        audioRef.current.pause();
+        playRandomSound(['music/effects/01.mp3', 'music/effects/02.mp3', 'music/effects/03.mp3', 'music/effects/04.mp3', 'music/effects/05.mp3']);
+        finished = true;
+      }
+  
       // Update aura uniforms and visibility
       objects.forEach((object, index) => {
         if (object.parent === scene) {
