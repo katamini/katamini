@@ -375,7 +375,7 @@ const Game: React.FC = () => {
               scene.remove(object)
               
               // Add to collected objects with position on the surface of the ball
-              const surfacePosition = object.position.clone().sub(player.position).normalize().multiplyScalar(player.scale.x * 0.5)
+              const surfacePosition = object.position.clone().sub(player.position).normalize().multiplyScalar(player.scale.x * 0.6)
               object.position.copy(surfacePosition)
               object.scale.multiplyScalar(0.9)
               collectedObjectsContainer.add(object)
@@ -384,7 +384,7 @@ const Game: React.FC = () => {
               // Update game state
               setGameState(prev => {
                 const currentTier = sizeTiers.find(tier => prev.playerSize >= tier.min && prev.playerSize < tier.max)
-                const growthRate = currentTier ? currentTier.growthRate : 0.1
+                const growthRate = currentTier ? currentTier.growthRate : 0.15
                 const newPlayerSize = prev.playerSize + object.userData.size * growthRate
 
                 return {
