@@ -8,7 +8,6 @@ import { SizeIndicator } from './components/size-indicator'
 import { auraVertexShader, auraFragmentShader } from './shaders/aura'
 import type { GameObject, GameState } from './types/game'
 
-import kataminiAudio from './music/katamini_01.mp3' // Import the audio file
 const audioRef = useRef<HTMLAudioElement | null>(null)
 
 // Organized game objects by size tiers
@@ -78,7 +77,7 @@ const Game: React.FC = () => {
 
   // music
   useEffect(() => {
-    const audio = new Audio(kataminiAudio)
+    const audio = new Audio('/music/katamini_01.mp3')
     audio.loop = true
     audio.volume = 0.5
     audioRef.current = audio
