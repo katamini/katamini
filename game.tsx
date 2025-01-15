@@ -16,7 +16,7 @@ const gameObjects: GameObject[] = [
   { type: 'coin', size: 2, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 0.3, color: '#FFD700', round: true, sound: 'music/blips/03.mp3' },
   
   // Tier 2 (2-5cm)
-  { type: 'pencil', size: 2.1, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
+  { type: 'pencil', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
   { type: 'spoon', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', round: false, sound: 'music/blips/05.mp3' },
   { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1.5, color: '#2196F3', round: true, sound: 'music/blips/06.mp3' },
   
@@ -258,8 +258,8 @@ const Game: React.FC = () => {
         
       } else {
          model.rotation.set(
-          obj.rotation[2] + Math.random() * Math.PI,
           0,
+          obj.rotation[2] + Math.random() * Math.PI,
           0,
         );
         // Adjust position to be above the floor
