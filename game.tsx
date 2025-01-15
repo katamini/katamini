@@ -479,7 +479,7 @@ const Game: React.FC = () => {
               
               // Scale the object to be more visible on the surface
               const scaleFactor = Math.max(0.1, object.userData.size / gameState.playerSize);
-              object.scale.multiplyScalar(0.6); // scaleFactor
+              object.scale.multiplyScalar(object.scale); // scaleFactor
               
               collectedObjectsContainer.add(object);
               object.userData.orbitOffset = Math.random() * Math.PI * 2;
@@ -531,7 +531,7 @@ const Game: React.FC = () => {
                 (child: THREE.Object3D) => {
                   const childSize = child.userData.size;
                   const childScaleFactor = Math.max(0.1, childSize / gameState.playerSize);
-                  child.scale.setScalar(0.5);
+                  child.scale.setScalar(object.scale);
 
                   // Remove objects that are too small to see
                   if (childScaleFactor < 0.05) {
