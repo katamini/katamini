@@ -265,7 +265,7 @@ const Game: React.FC = () => {
           model.userData.size = obj.size; // Set userData.size for interaction logic
     
           // Adjust position to be above the floor
-          model.position.y = obj.size * 0.05;
+          model.position.y = obj.size * 0.05; // Ensure the object is adjusted to sit on the ground properly
     
           model.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
@@ -321,7 +321,7 @@ const Game: React.FC = () => {
           mesh.userData.size = obj.size; // Set userData.size for interaction logic
     
           // Adjust position to be above the floor
-          mesh.position.y = obj.size * 0.005;
+          mesh.position.y = obj.size * 0.5; // Ensure the object is adjusted to sit on the ground properly
     
           scene.add(mesh);
           objects.push(mesh);
