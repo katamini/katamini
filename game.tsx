@@ -657,7 +657,8 @@ const Game: React.FC = () => {
               Time: {Math.floor(gameState.timeElapsed / 60)}m {gameState.timeElapsed % 60}s
             </p>
             <br/>
-            <button type="button" onClick={ refreshPage }><span>Play Again</span></button> 
+            <button type="button" onClick={ refreshPage }><span>Play Again</span></button><br/>
+            <img src="https://i.imgur.com/n1lfojs.gif"/>
           </div>
         </div>
       )}
