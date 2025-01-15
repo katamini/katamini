@@ -41,7 +41,7 @@ const sizeTiers = [
   { min: 2, max: 5, growthRate: 0.04 },
   { min: 5, max: 10, growthRate: 0.03 },
   { min: 10, max: 20, growthRate: 0.03 },
-  { min: 20, max: Infinity, growthRate: 0.02 },
+  { min: 20, max: Infinity, growthRate: 0.05 },
 ];
 // Multiply objects for better distribution
 const distributeObjects = (objects: GameObject[]): GameObject[] => {
@@ -50,14 +50,12 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     const count =
       obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1.1) * 0.8;
+      const distance = Math.pow(obj.size, 1.1) * 0.7;
       const angle = Math.random() * Math.PI * 2;
       distributed.push({
         ...obj,
         position: [
-          Math.cos(angle) * distance,
-          obj.position[1],
-          Math.sin(angle) * distance,
+          Math.cos(angle) * distance, 0, Math.sin(angle) * distance,
         ],
         rotation: obj.rotation, 
       });
@@ -175,8 +173,8 @@ const Game: React.FC = () => {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2548;
-    directionalLight.shadow.mapSize.height = 2548;
+    directionalLight.shadow.mapSize.width = 3000;
+    directionalLight.shadow.mapSize.height = 3000;
     directionalLight.shadow.camera.near = 0.5;
     directionalLight.shadow.camera.far = 50;
     scene.add(directionalLight);
@@ -326,9 +324,9 @@ const Game: React.FC = () => {
     const playerDirection = new THREE.Vector3(0, 0, -1);
     const rotationSpeed = 0.02;
     const acceleration = 0.003;
-    const maxSpeed = 0.2;
+    const maxSpeed = 0.1;
     const friction = 0.99;
-    const bounceForce = 0.3;
+    const bounceForce = 0.4;
     const gravity = 0.01;
     const jumpForce = 0.2;
     let isGrounded = false;
