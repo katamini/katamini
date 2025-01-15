@@ -530,11 +530,11 @@ const Game: React.FC = () => {
               collectedObjectsContainer.children.forEach(
                 (child: THREE.Object3D) => {
                   const childSize = child.userData.size;
-                  const childScaleFactor = Math.max(0.1, childSize / gameState.playerSize);
-                  child.scale.setScalar(gameState.playerSize * 0.8); // scalefactor 2
+                  const childScaleFactor = Math.min(child.scale, childSize / gameState.playerSize);
+                  child.scale.setScalar(childScaleFactor); // scalefactor 2
 
                   // Remove objects that are too small to see
-                  if (childScaleFactor < 0.05) {
+                  if (childScaleFactor < 0.05 ) {
                     collectedObjectsContainer.remove(child);
                   } else {
                     // Adjust position to orbit around the growing ball
