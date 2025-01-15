@@ -18,17 +18,17 @@ const gameObjects: GameObject[] = [
   // Tier 2 (2-5cm)
   { type: 'pencil', size: 2.5, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 1, color: '#4CAF50', sound: 'music/blips/04.mp3' },
   { type: 'spoon', size: 2, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 1, color: '#9E9E9E', sound: 'music/blips/05.mp3' },
-  { type: 'toy_car', size: 4, model: 'models/coin.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3', sound: 'music/blips/06.mp3' },
+  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3', sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
+  { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/08.mp3' },
   { type: 'mug', size: 6, model: 'models/duck.glb', position: [4, 0, -3], rotation: [0, 0, 0], scale: 1, color: '#FF5722', sound: 'music/blips/07.mp3' },
-  { type: 'book', size: 6.5, model: 'models/pencil.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/08.mp3' },
-  { type: 'plate', size: 9, model: 'models/toy_car.glb', position: [5, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#E0E0E0', sound: 'music/blips/09.mp3' },
+  { type: 'plate', size: 8.5, model: 'models/toy_car.glb', position: [5, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#E0E0E0', sound: 'music/blips/09.mp3' },
   
   // Tier 4 (10-20cm)
-  { type: 'laptop', size: 12, model: 'models/books.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 1, color: '#9C27B0', sound: 'music/blips/10.mp3' },
-  { type: 'box', size: 15, model: 'models/trashcan.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
-  { type: 'chair', size: 18, model: 'models/bench.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/02.mp3' },
+  { type: 'laptop', size: 12, model: 'models/none.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 1, color: '#9C27B0', sound: 'music/blips/10.mp3' },
+  { type: 'box', size: 15, model: 'models/none.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
+  { type: 'chair', size: 18, model: 'models/none.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/02.mp3' },
   
   // Tier 5 (20cm+)
   { type: 'table', size: 25, model: 'models/sofa.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037', sound: 'music/blips/03.mp3' },
