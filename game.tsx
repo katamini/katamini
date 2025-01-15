@@ -254,16 +254,16 @@ const Game: React.FC = () => {
           obj.rotation[2] + Math.random() * Math.PI
         );
         // adjust to the floor
-        model.position.y = 0 + model.rotation.y;
+        model.position.y = 0.05;
         
       } else {
          model.rotation.set(
+          obj.rotation[2] + Math.random() * Math.PI,
           0,
           0,
-          obj.rotation[2] + Math.random() * Math.PI
         );
         // Adjust position to be above the floor
-        model.position.y = 0;
+        model.position.y = 0.05;
       }
       // Apply the scale parameter
       model.scale.setScalar(obj.scale);
