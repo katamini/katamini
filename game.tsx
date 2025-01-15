@@ -50,25 +50,16 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     const count =
       obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1.1) * 0.65;
+      const distance = Math.pow(obj.size, 1) * 0.7;
       const angle = Math.random() * Math.PI * 2;
-      const newPosition = [
-        Math.cos(angle) * distance,
-        obj.position[1],
-        Math.sin(angle) * distance,
-      ];
-      if (obj.round) {
-        distributed.push({
-          ...obj,
-          position: newPosition,
-        });
-      } else {
-        distributed.push({
-          ...obj,
-          position: newPosition,
-          rotation: [0, 0, angle], // Rotate only on Z axis
-        });
-      }
+      distributed.push({
+        ...obj,
+        position: [
+          Math.cos(angle) * distance,
+          obj.position[1],
+          Math.sin(angle) * distance,
+        ],
+      });
     }
   });
   return distributed;
@@ -254,7 +245,7 @@ const Game: React.FC = () => {
     (gltf) => {
       const model = gltf.scene;
       model.position.set(...obj.position);
-
+      model.rotation.set(...obj.rotation);
       if (obj.round){
         // Add random rotation
         model.rotation.set(
@@ -263,9 +254,9 @@ const Game: React.FC = () => {
           obj.rotation[2] + Math.random() * Math.PI
         );
       } else {
-        // Add random rotation, Z only
+        // Add random Z rotation
         model.rotation.set(
-          0, 0, obj.rotation[2] + Math.random() * Math.PI
+          obj.rotation[0], obj.rotation[1], obj.rotation[2] + Math.random() * Math.PI
         );
       }
       // Apply the scale parameter
@@ -597,6 +588,7 @@ const Game: React.FC = () => {
 
       // Rotate collected objects container
       collectedObjectsContainer.rotation.y += 0.05;
+      collectedObjectsContainer.rotation.z += 0.05;
 
       // Update camera zoom based on player size
       const targetZoom = THREE.MathUtils.clamp(
