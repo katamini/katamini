@@ -240,91 +240,106 @@ const Game: React.FC = () => {
     let totalObjects = objects.length; 
 
     distributeObjects(gameObjects).forEach((obj) => {
-  loader.load(
-    obj.model,
-    (gltf) => {
-      const model = gltf.scene;
-      model.position.set(...obj.position);
-      model.rotation.set(...obj.rotation);
-      if (obj.round){
-        // Add random rotation
-        model.rotation.set(
-          obj.rotation[0] + Math.random() * Math.PI,
-          obj.rotation[1] + Math.random() * Math.PI,
-          obj.rotation[2] + Math.random() * Math.PI
-        );
-      } else {
-        // Add random Z rotation
-        model.rotation.set(
-          obj.rotation[0], obj.rotation[1], obj.rotation[2] + Math.random() * Math.PI
-        );
-      }
-      // Apply the scale parameter
-      model.scale.setScalar(obj.scale);
-      model.userData.size = obj.size; // Set userData.size for interaction logic
-
-      // Adjust position to be above the floor
-      model.position.y = obj.size * 0.05;
-
-      model.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          (child as THREE.Mesh).castShadow = true;
-          (child as THREE.Mesh).receiveShadow = true;
+      loader.load(
+        obj.model,
+        (gltf) => {
+          const model = gltf.scene;
+          model.position.set(...obj.position);
+          if (obj.round) {
+            // Add random rotation on all axes
+            model.rotation.set(
+              obj.rotation[0] + Math.random() * Math.PI,
+              obj.rotation[1] + Math.random() * Math.PI,
+              obj.rotation[2] + Math.random() * Math.PI
+            );
+          } else {
+            // Add random rotation only on Z axis
+            model.rotation.set(
+              obj.rotation[0],
+              obj.rotation[1],
+              obj.rotation[2] + Math.random() * Math.PI
+            );
+          }
+          // Apply the scale parameter
+          model.scale.setScalar(obj.scale);
+          model.userData.size = obj.size; // Set userData.size for interaction logic
+    
+          // Adjust position to be above the floor
+          model.position.y = obj.size * 0.05;
+    
+          model.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              (child as THREE.Mesh).castShadow = true;
+              (child as THREE.Mesh).receiveShadow = true;
+            }
+          });
+          scene.add(model);
+          objects.push(model);
+    
+          // Create aura
+          const auraGeometry = new THREE.SphereGeometry(
+            obj.size * 0.15,
+            32,
+            32
+          );
+          const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+          auraMesh.scale.multiplyScalar(1.2);
+          auraMesh.visible = false;
+          model.add(auraMesh);
+          auras.push(auraMesh);
+        },
+        undefined,
+        () => {
+          // If loading fails, create a default block
+          const geometry = new THREE.BoxGeometry(
+            obj.size * 0.1,
+            obj.size * 0.1,
+            obj.size * 0.1
+          );
+          const material = new THREE.MeshStandardMaterial({ color: obj.color });
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(...obj.position);
+          if (obj.round) {
+            // Add random rotation on all axes
+            mesh.rotation.set(
+              obj.rotation[0] + Math.random() * Math.PI,
+              obj.rotation[1] + Math.random() * Math.PI,
+              obj.rotation[2] + Math.random() * Math.PI
+            );
+          } else {
+            // Add random rotation only on Z axis
+            mesh.rotation.set(
+              obj.rotation[0],
+              obj.rotation[1],
+              obj.rotation[2] + Math.random() * Math.PI
+            );
+          }
+          mesh.scale.setScalar(obj.scale); // Apply the scale parameter
+    
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          mesh.userData.size = obj.size; // Set userData.size for interaction logic
+    
+          // Adjust position to be above the floor
+          mesh.position.y = obj.size * 0.005;
+    
+          scene.add(mesh);
+          objects.push(mesh);
+    
+          // Create aura
+          const auraGeometry = new THREE.SphereGeometry(
+            obj.size * 0.06,
+            32,
+            32
+          );
+          const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+          auraMesh.scale.multiplyScalar(1.2);
+          auraMesh.visible = false;
+          mesh.add(auraMesh);
+          auras.push(auraMesh);
         }
-      });
-      scene.add(model);
-      objects.push(model);
-
-      // Create aura
-      const auraGeometry = new THREE.SphereGeometry(
-        obj.size * 0.15,
-        32,
-        32
       );
-      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
-      auraMesh.scale.multiplyScalar(1.2);
-      auraMesh.visible = false;
-      model.add(auraMesh);
-      auras.push(auraMesh);
-    },
-    undefined,
-    () => {
-      // If loading fails, create a default block
-      const geometry = new THREE.BoxGeometry(
-        obj.size * 0.1,
-        obj.size * 0.1,
-        obj.size * 0.1
-      );
-      const material = new THREE.MeshStandardMaterial({ color: obj.color });
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(...obj.position);
-      mesh.rotation.set(...obj.rotation);
-      mesh.scale.setScalar(obj.scale); // Apply the scale parameter
-
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mesh.userData.size = obj.size; // Set userData.size for interaction logic
-
-      // Adjust position to be above the floor
-      mesh.position.y = obj.size * 0.005;
-
-      scene.add(mesh);
-      objects.push(mesh);
-
-      // Create aura
-      const auraGeometry = new THREE.SphereGeometry(
-        obj.size * 0.06,
-        32,
-        32
-      );
-      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
-      auraMesh.scale.multiplyScalar(1.2);
-      auraMesh.visible = false;
-      mesh.add(auraMesh);
-      auras.push(auraMesh);
-    }
-  );
-});
+    });
     // Player movement properties
     const playerVelocity = new THREE.Vector3();
     const playerDirection = new THREE.Vector3(0, 0, -1);
