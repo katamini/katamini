@@ -78,9 +78,6 @@ const Game: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const loader = new GLTFLoader();
 
-  // Default Up for all objects
-  THREE.Object3D.DefaultUp.set(0.0, 0.0, 1.0);
-
   const playRandomSound = (sounds: string[]) => {
       const randomIndex = Math.floor(Math.random() * sounds.length);
       const sound = new Audio(sounds[randomIndex]);
@@ -256,13 +253,23 @@ const Game: React.FC = () => {
           obj.rotation[1] + Math.random() * Math.PI,
           obj.rotation[2] + Math.random() * Math.PI
         );
+        // adjust to the floor
+        model.position.y = 0 + model.rotation.y;
+        
+      } else {
+         model.rotation.set(
+          0,
+          0,
+          obj.rotation[2] + Math.random() * Math.PI
+        );
+        // Adjust position to be above the floor
+        model.position.y = 0;
       }
       // Apply the scale parameter
       model.scale.setScalar(obj.scale);
       model.userData.size = obj.size; // Set userData.size for interaction logic
 
-      // Adjust position to be above the floor
-      model.position.y = 0;
+      
 
       model.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
