@@ -255,16 +255,21 @@ const Game: React.FC = () => {
       const model = gltf.scene;
       model.position.set(...obj.position);
 
-      // Add random rotation
-      model.rotation.set(
-        obj.rotation[0] + Math.random() * Math.PI,
-        obj.rotation[1] + Math.random() * Math.PI,
-        obj.rotation[2] + Math.random() * Math.PI
-      );
-
+      if (obj.round){
+        // Add random rotation
+        model.rotation.set(
+          obj.rotation[0] + Math.random() * Math.PI,
+          obj.rotation[1] + Math.random() * Math.PI,
+          obj.rotation[2] + Math.random() * Math.PI
+        );
+      } else {
+        // Add random rotation, Z only
+        model.rotation.set(
+          0, 0, obj.rotation[2] + Math.random() * Math.PI
+        );
+      }
       // Apply the scale parameter
       model.scale.setScalar(obj.scale);
-
       model.userData.size = obj.size; // Set userData.size for interaction logic
 
       // Adjust position to be above the floor
