@@ -479,7 +479,7 @@ const Game: React.FC = () => {
               
               // Scale the object to be more visible on the surface
               const scaleFactor = Math.max(0.1, object.userData.size / gameState.playerSize);
-              object.scale.multiplyScalar(scaleFactor); // scaleFactor
+              object.scale.multiplyScalar(gameState.playerSize * 0.8); // scaleFactor 1
               
               collectedObjectsContainer.add(object);
               object.userData.orbitOffset = Math.random() * Math.PI * 2;
