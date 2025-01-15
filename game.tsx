@@ -18,7 +18,7 @@ const gameObjects: GameObject[] = [
   // Tier 2 (2-5cm)
   { type: 'pencil', size: 2.5, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 1, color: '#4CAF50', sound: 'music/blips/04.mp3' },
   { type: 'spoon', size: 2, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 1, color: '#9E9E9E', sound: 'music/blips/05.mp3' },
-  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3', sound: 'music/blips/06.mp3' },
+  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 0.8, color: '#2196F3', sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
   { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.2, color: '#795548', sound: 'music/blips/08.mp3' },
@@ -31,8 +31,8 @@ const gameObjects: GameObject[] = [
   { type: 'chair', size: 18, model: 'models/none.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/02.mp3' },
   
   // Tier 5 (20cm+)
-  { type: 'table', size: 25, model: 'models/sofa.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037', sound: 'music/blips/03.mp3' },
-  { type: 'desk', size: 30, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 1, color: '#3E2723', sound: 'music/blips/04.mp3' },
+  { type: 'table', size: 25, model: 'models/none.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037', sound: 'music/blips/03.mp3' },
+  { type: 'desk', size: 30, model: 'models/none.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 1, color: '#3E2723', sound: 'music/blips/04.mp3' },
 ];
 
 // Size tiers for controlled growth
@@ -240,83 +240,86 @@ const Game: React.FC = () => {
     let totalObjects = objects.length; 
 
     distributeObjects(gameObjects).forEach((obj) => {
-      loader.load(
-        obj.model,
-        (gltf) => {
-          const model = gltf.scene;
-          model.position.set(...obj.position);
+  loader.load(
+    obj.model,
+    (gltf) => {
+      const model = gltf.scene;
+      model.position.set(...obj.position);
 
-          // Add random rotation
-          model.rotation.set(
-            obj.rotation[0] + Math.random() * Math.PI,
-            obj.rotation[1] + Math.random() * Math.PI,
-            obj.rotation[2] + Math.random() * Math.PI
-          );
-
-          model.scale.setScalar(obj.size * 0.1); // Respect the size
-          model.userData.size = obj.size; // Set userData.size for interaction logic
-
-          // Adjust position to be above the floor
-          model.position.y = obj.size * 0.05;
-
-          model.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              (child as THREE.Mesh).castShadow = true;
-              (child as THREE.Mesh).receiveShadow = true;
-            }
-          });
-          scene.add(model);
-          objects.push(model);
-
-          // Create aura
-          const auraGeometry = new THREE.SphereGeometry(
-            obj.size * 0.15,
-            32,
-            32
-          );
-          const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
-          auraMesh.scale.multiplyScalar(1.2);
-          auraMesh.visible = false;
-          model.add(auraMesh);
-          auras.push(auraMesh);
-        },
-        undefined,
-        () => {
-          // If loading fails, create a default block
-          const geometry = new THREE.BoxGeometry(
-            obj.size * 0.1,
-            obj.size * 0.1,
-            obj.size * 0.1
-          );
-          const material = new THREE.MeshStandardMaterial({ color: obj.color });
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.position.set(...obj.position);
-          mesh.rotation.set(...obj.rotation);
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-          mesh.userData.size = obj.size; // Set userData.size for interaction logic
-
-          // Adjust position to be above the floor
-          mesh.position.y = obj.size * 0.005;
-
-          scene.add(mesh);
-          objects.push(mesh);
-
-          // Create aura
-          const auraGeometry = new THREE.SphereGeometry(
-            obj.size * 0.06,
-            32,
-            32
-          );
-          const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
-          auraMesh.scale.multiplyScalar(1.2);
-          auraMesh.visible = false;
-          mesh.add(auraMesh);
-          auras.push(auraMesh);
-        }
+      // Add random rotation
+      model.rotation.set(
+        obj.rotation[0] + Math.random() * Math.PI,
+        obj.rotation[1] + Math.random() * Math.PI,
+        obj.rotation[2] + Math.random() * Math.PI
       );
-    });
 
+      // Apply the scale parameter
+      model.scale.setScalar(obj.scale);
+
+      model.userData.size = obj.size; // Set userData.size for interaction logic
+
+      // Adjust position to be above the floor
+      model.position.y = obj.size * 0.05;
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          (child as THREE.Mesh).castShadow = true;
+          (child as THREE.Mesh).receiveShadow = true;
+        }
+      });
+      scene.add(model);
+      objects.push(model);
+
+      // Create aura
+      const auraGeometry = new THREE.SphereGeometry(
+        obj.size * 0.15,
+        32,
+        32
+      );
+      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+      auraMesh.scale.multiplyScalar(1.2);
+      auraMesh.visible = false;
+      model.add(auraMesh);
+      auras.push(auraMesh);
+    },
+    undefined,
+    () => {
+      // If loading fails, create a default block
+      const geometry = new THREE.BoxGeometry(
+        obj.size * 0.1,
+        obj.size * 0.1,
+        obj.size * 0.1
+      );
+      const material = new THREE.MeshStandardMaterial({ color: obj.color });
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(...obj.position);
+      mesh.rotation.set(...obj.rotation);
+      mesh.scale.setScalar(obj.scale); // Apply the scale parameter
+
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.size = obj.size; // Set userData.size for interaction logic
+
+      // Adjust position to be above the floor
+      mesh.position.y = obj.size * 0.005;
+
+      scene.add(mesh);
+      objects.push(mesh);
+
+      // Create aura
+      const auraGeometry = new THREE.SphereGeometry(
+        obj.size * 0.06,
+        32,
+        32
+      );
+      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+      auraMesh.scale.multiplyScalar(1.2);
+      auraMesh.visible = false;
+      mesh.add(auraMesh);
+      auras.push(auraMesh);
+    }
+  );
+});
     // Player movement properties
     const playerVelocity = new THREE.Vector3();
     const playerDirection = new THREE.Vector3(0, 0, -1);
