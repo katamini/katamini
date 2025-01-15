@@ -13,15 +13,15 @@ const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
   { type: 'paperclip', size: 0.5, model: 'models/none.glb', position: [1, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#A1A1A1', sound: 'music/blips/01.mp3' },
   { type: 'eraser', size: 1, model: 'models/none.glb', position: [-1, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#F48FB1', sound: 'music/blips/02.mp3' },
-  { type: 'coin', size: 2, model: 'models/none.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 1, color: '#FFD700', sound: 'music/blips/03.mp3' },
+  { type: 'coin', size: 2, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 0.3, color: '#FFD700', sound: 'music/blips/03.mp3' },
   
   // Tier 2 (2-5cm)
-  { type: 'pencil', size: 2.5, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', sound: 'music/blips/04.mp3' },
+  { type: 'pencil', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', sound: 'music/blips/04.mp3' },
   { type: 'spoon', size: 2, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.2, color: '#9E9E9E', sound: 'music/blips/05.mp3' },
   { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 0.2, color: '#2196F3', sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
-  { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.03, color: '#795548', sound: 'music/blips/08.mp3' },
+  { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.3, color: '#795548', sound: 'music/blips/08.mp3' },
   { type: 'mug', size: 6, model: 'models/duck.glb', position: [4, 0, -3], rotation: [0, 0, 0], scale: 0.4, color: '#FF5722', sound: 'music/blips/07.mp3' },
   { type: 'plate', size: 8.5, model: 'models/toy_car.glb', position: [5, 0, 2], rotation: [0, 0, 0], scale: 0.5, color: '#E0E0E0', sound: 'music/blips/09.mp3' },
   
@@ -32,7 +32,7 @@ const gameObjects: GameObject[] = [
   
   // Tier 5 (20cm+)
   { type: 'table', size: 25, model: 'models/none.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037', sound: 'music/blips/03.mp3' },
-  { type: 'desk', size: 30, model: 'models/none.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 1, color: '#3E2723', sound: 'music/blips/04.mp3' },
+  { type: 'desk', size: 30, model: 'models/chair.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
 ];
 
 // Size tiers for controlled growth
@@ -478,8 +478,8 @@ const Game: React.FC = () => {
               // object.aura.visible = false;
               
               // Scale the object to be more visible on the surface
-              // const scaleFactor = Math.max(0.1, object.userData.size / gameState.playerSize);
-              // object.scale.multiplyScalar(gameState.playerSize * 0.8); // scaleFactor 1
+              const scaleFactor = Math.max(0.1, object.userData.size / gameState.playerSize);
+              object.scale.multiplyScalar(0.6); // scaleFactor
               
               collectedObjectsContainer.add(object);
               object.userData.orbitOffset = Math.random() * Math.PI * 2;
@@ -530,11 +530,11 @@ const Game: React.FC = () => {
               collectedObjectsContainer.children.forEach(
                 (child: THREE.Object3D) => {
                   const childSize = child.userData.size;
-                  const childScaleFactor = Math.min(child.scale, childSize / gameState.playerSize);
-                  child.scale.setScalar(childScaleFactor); // scalefactor 2
+                  const childScaleFactor = Math.max(0.1, childSize / gameState.playerSize);
+                  child.scale.setScalar(0.5);
 
                   // Remove objects that are too small to see
-                  if (childScaleFactor < 0.05 ) {
+                  if (childScaleFactor < 0.05) {
                     collectedObjectsContainer.remove(child);
                   } else {
                     // Adjust position to orbit around the growing ball
@@ -671,4 +671,3 @@ const refreshPage = () => {
 };
 
 export default Game;
-
