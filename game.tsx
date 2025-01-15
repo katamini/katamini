@@ -43,6 +43,7 @@ const sizeTiers = [
   { min: 10, max: 20, growthRate: 0.03 },
   { min: 20, max: Infinity, growthRate: 0.05 },
 ];
+
 // Multiply objects for better distribution
 const distributeObjects = (objects: GameObject[]): GameObject[] => {
   const distributed: GameObject[] = [];
@@ -76,6 +77,9 @@ const Game: React.FC = () => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const loader = new GLTFLoader();
+
+  // Default Up for all objects
+  THREE.Object3D.DefaultUp.set(0.0, 0.0, 1.0);
 
   const playRandomSound = (sounds: string[]) => {
       const randomIndex = Math.floor(Math.random() * sounds.length);
@@ -248,8 +252,8 @@ const Game: React.FC = () => {
       if (obj.round){
         // Add random rotation
         model.rotation.set(
-          obj.rotation[0] + Math.random() * Math.PI,
-          0, //obj.rotation[1] + Math.random() * Math.PI,
+          obj.rotation[0],
+          obj.rotation[1] + Math.random() * Math.PI,
           obj.rotation[2] + Math.random() * Math.PI
         );
       }
