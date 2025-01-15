@@ -50,7 +50,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     const count =
       obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1) * 0.7;
+      const distance = Math.pow(obj.size, 1.1) * 0.8;
       const angle = Math.random() * Math.PI * 2;
       distributed.push({
         ...obj,
@@ -59,6 +59,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
           obj.position[1],
           Math.sin(angle) * distance,
         ],
+        rotation: obj.rotation, 
       });
     }
   });
@@ -253,18 +254,13 @@ const Game: React.FC = () => {
           obj.rotation[1] + Math.random() * Math.PI,
           obj.rotation[2] + Math.random() * Math.PI
         );
-      } else {
-        // Add random Z rotation
-        model.rotation.set(
-          0, 0, obj.rotation[2] + Math.random() * Math.PI
-        );
       }
       // Apply the scale parameter
       model.scale.setScalar(obj.scale);
       model.userData.size = obj.size; // Set userData.size for interaction logic
 
       // Adjust position to be above the floor
-      model.position.y = obj.size * 0.005;
+      model.position.y = 0;
 
       model.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
