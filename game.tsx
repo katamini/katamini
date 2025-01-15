@@ -18,7 +18,7 @@ const gameObjects: GameObject[] = [
   // Tier 2 (2-5cm)
   { type: 'pencil', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
   { type: 'spoon', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', round: true, sound: 'music/blips/05.mp3' },
-  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 0.2, color: '#2196F3', sound: 'music/blips/06.mp3' },
+  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 2, color: '#2196F3', sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
   { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.3, color: '#795548', sound: 'music/blips/08.mp3' },
@@ -50,7 +50,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     const count =
       obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1.1) * 0.7;
+      const distance = Math.pow(obj.size, 1.1) * 0.6;
       const angle = Math.random() * Math.PI * 2;
       distributed.push({
         ...obj,
@@ -248,8 +248,8 @@ const Game: React.FC = () => {
       if (obj.round){
         // Add random rotation
         model.rotation.set(
-          obj.rotation[0] + Math.random() * Math.PI,
-          obj.rotation[1] + Math.random() * Math.PI,
+          0, //obj.rotation[0] + Math.random() * Math.PI,
+          0, //obj.rotation[1] + Math.random() * Math.PI,
           obj.rotation[2] + Math.random() * Math.PI
         );
       }
