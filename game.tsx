@@ -40,8 +40,8 @@ const sizeTiers = [
   { min: 0, max: 2, growthRate: 0.05 },
   { min: 2, max: 5, growthRate: 0.04 },
   { min: 5, max: 10, growthRate: 0.03 },
-  { min: 10, max: 20, growthRate: 0.02 },
-  { min: 20, max: Infinity, growthRate: 0.01 },
+  { min: 10, max: 20, growthRate: 0.03 },
+  { min: 20, max: Infinity, growthRate: 0.02 },
 ];
 // Multiply objects for better distribution
 const distributeObjects = (objects: GameObject[]): GameObject[] => {
@@ -50,7 +50,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     const count =
       obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1) * 0.7;
+      const distance = Math.pow(obj.size, 1.1) * 0.65;
       const angle = Math.random() * Math.PI * 2;
       const newPosition = [
         Math.cos(angle) * distance,
@@ -60,20 +60,13 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
       if (obj.round) {
         distributed.push({
           ...obj,
-          position: [
-            Math.cos(angle) * distance,
-            obj.position[1],
-            Math.sin(angle) * distance,
-          ],
+          position: newPosition,
         });
       } else {
         distributed.push({
           ...obj,
-          position: [
-            Math.cos(angle) * distance,
-            obj.position[1],
-            obj.position[2],
-          ],
+          position: newPosition,
+          rotation: [0, 0, angle], // Rotate only on Z axis
         });
       }
     }
