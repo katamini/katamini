@@ -13,11 +13,11 @@ const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
   { type: 'paperclip', size: 0.5, model: 'models/none.glb', position: [1, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#A1A1A1', sound: 'music/blips/01.mp3' },
   { type: 'eraser', size: 1, model: 'models/none.glb', position: [-1, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#F48FB1', sound: 'music/blips/02.mp3' },
-  { type: 'coin', size: 2, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 0.3, color: '#FFD700', sound: 'music/blips/03.mp3' },
+  { type: 'coin', size: 2, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 0.3, color: '#FFD700', round: true, sound: 'music/blips/03.mp3' },
   
   // Tier 2 (2-5cm)
-  { type: 'pencil', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', sound: 'music/blips/04.mp3' },
-  { type: 'spoon', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', sound: 'music/blips/05.mp3' },
+  { type: 'pencil', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
+  { type: 'spoon', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', round: true, sound: 'music/blips/05.mp3' },
   { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 0.2, color: '#2196F3', sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
@@ -52,14 +52,23 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     for (let i = 0; i < count; i++) {
       const distance = Math.pow(obj.size, 1) * 0.7;
       const angle = Math.random() * Math.PI * 2;
-      distributed.push({
-        ...obj,
-        position: [
-          Math.cos(angle) * distance,
-          obj.position[1],
-          Math.sin(angle) * distance,
-        ],
-      });
+      const newPosition = [
+        Math.cos(angle) * distance,
+        obj.position[1],
+        Math.sin(angle) * distance,
+      ];
+      if (obj.round) {
+        distributed.push({
+          ...obj,
+          position: newPosition,
+        });
+      } else {
+        distributed.push({
+          ...obj,
+          position: newPosition,
+          rotation: [0, 0, angle], // Rotate only on Z axis
+        });
+      }
     }
   });
   return distributed;
