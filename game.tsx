@@ -511,7 +511,7 @@ const Game: React.FC = () => {
                       size: object.userData.size,
                       position: surfacePosition.toArray(),
                       rotation: [0, 0, 0],
-                      scale: obj.scale * 0.8,
+                      scale: object.scale * 0.8,
                       model: "",
                       color: "#ffffff",
                     },
