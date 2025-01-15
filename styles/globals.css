@@ -6,10 +6,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-body > main {
+.p-24 {
   padding: 0 !important;
-  height: 100%;
-  width: 100%;
 }
 
 @layer utilities {
