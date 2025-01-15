@@ -60,13 +60,20 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
       if (obj.round) {
         distributed.push({
           ...obj,
-          position: newPosition,
+          position: [
+            Math.cos(angle) * distance,
+            obj.position[1],
+            Math.sin(angle) * distance,
+          ],
         });
       } else {
         distributed.push({
           ...obj,
-          position: newPosition,
-          rotation: [0, 0, angle], // Rotate only on Z axis
+          position: [
+            Math.cos(angle) * distance,
+            obj.position[1],
+            obj.position[2],
+          ],
         });
       }
     }
