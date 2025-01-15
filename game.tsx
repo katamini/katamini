@@ -16,23 +16,23 @@ const gameObjects: GameObject[] = [
   { type: 'coin', size: 2, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 0.3, color: '#FFD700', round: true, sound: 'music/blips/03.mp3' },
   
   // Tier 2 (2-5cm)
-  { type: 'pencil', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
-  { type: 'spoon', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', round: true, sound: 'music/blips/05.mp3' },
-  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 2, color: '#2196F3', sound: 'music/blips/06.mp3' },
+  { type: 'pencil', size: 2.1, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
+  { type: 'spoon', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', round: false, sound: 'music/blips/05.mp3' },
+  { type: 'toy_car', size: 4.5, model: 'models/pencil.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1.5, color: '#2196F3', round: true, sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
-  { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.3, color: '#795548', sound: 'music/blips/08.mp3' },
+  { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.25, color: '#795548', sound: 'music/blips/08.mp3' },
   { type: 'mug', size: 6, model: 'models/duck.glb', position: [4, 0, -3], rotation: [0, 0, 0], scale: 0.4, color: '#FF5722', sound: 'music/blips/07.mp3' },
   { type: 'plate', size: 8.5, model: 'models/toy_car.glb', position: [5, 0, 2], rotation: [0, 0, 0], scale: 0.5, color: '#E0E0E0', sound: 'music/blips/09.mp3' },
   
   // Tier 4 (10-20cm)
-  { type: 'laptop', size: 12, model: 'models/flowerpot.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 0.6, color: '#9C27B0', sound: 'music/blips/10.mp3' },
+  { type: 'laptop', size: 12, model: 'models/flowerpot.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 0.4, color: '#9C27B0', sound: 'music/blips/10.mp3' },
   { type: 'box', size: 15, model: 'models/none.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
-  { type: 'chair', size: 18, model: 'models/none.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/02.mp3' },
+  { type: 'chair', size: 18, model: 'models/chair.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 1, color: '#795548', sound: 'music/blips/02.mp3' },
   
   // Tier 5 (20cm+)
   { type: 'table', size: 25, model: 'models/none.glb', position: [7, 0, 7], rotation: [0, 0, 0], scale: 1, color: '#5D4037', sound: 'music/blips/03.mp3' },
-  { type: 'desk', size: 30, model: 'models/chair.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
+  { type: 'desk', size: 30, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.05, color: '#3E2723', sound: 'music/blips/04.mp3' },
 ];
 
 // Size tiers for controlled growth
@@ -50,7 +50,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
     const count =
       obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
     for (let i = 0; i < count; i++) {
-      const distance = Math.pow(obj.size, 1.1) * 0.6;
+      const distance = Math.pow(obj.size, 1.05) * 0.5;
       const angle = Math.random() * Math.PI * 2;
       distributed.push({
         ...obj,
@@ -248,7 +248,7 @@ const Game: React.FC = () => {
       if (obj.round){
         // Add random rotation
         model.rotation.set(
-          0, //obj.rotation[0] + Math.random() * Math.PI,
+          obj.rotation[0] + Math.random() * Math.PI,
           0, //obj.rotation[1] + Math.random() * Math.PI,
           obj.rotation[2] + Math.random() * Math.PI
         );
