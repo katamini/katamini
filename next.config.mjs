@@ -14,7 +14,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   output: "export",
-//  basePath: "/katamini",
+  basePath: "/katamini",
   images: {
     unoptimized: true,
   },

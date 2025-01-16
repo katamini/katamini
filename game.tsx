@@ -196,28 +196,24 @@ const Game: React.FC = () => {
     scene.add(room);
 
     // Floor
-    const floorScale = 1.5; // Adjust this scale as needed
-    const parquetLoader = new GLTFLoader();     
+    const floorTexture = new THREE.TextureLoader().load('textures/floor_carpet.jpg');
+    floorTexture.wrapS = THREE.RepeatWrapping;
+    floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(50, 50); // Adjust the repeat values as needed
 
-    parquetLoader.load('models/floor_pixel.glb', (gltf) => {
-      const parquetTile = gltf.scene;
-      const tileCount = 20; // Adjust the number of tiles as needed
-
-      for (let i = -tileCount; i <= tileCount; i++) {
-        for (let j = -tileCount; j <= tileCount; j++) {
-          const tileClone = parquetTile.clone();
-          tileClone.position.set(i * floorScale, 0.01, j * floorScale); // Ensure the y-position is set to 0.01
-          tileClone.scale.setScalar(floorScale);
-          tileClone.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              (child as THREE.Mesh).castShadow = false;
-              (child as THREE.Mesh).receiveShadow = false; 
-            }
-          });
-          scene.add(tileClone);
-        }
-      }
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      map: floorTexture,
+      roughness: 1.0,  // Non-reflective
+      metalness: 0.0,  // Non-reflective
+      side: THREE.DoubleSide,
     });
+
+    const floorGeometry = new THREE.PlaneGeometry(50, 50);
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = 0.01;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
     // Player (Katamari)
     const playerGeometry = new THREE.SphereGeometry(0.5, 32, 32);
