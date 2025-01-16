@@ -76,6 +76,8 @@ const Game: React.FC = () => {
   });
   const [userInteracted, setUserInteracted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [floorScale, setFloorScale] = useState(1);
+
   const loader = new GLTFLoader();
 
   const playRandomSound = (sounds: string[]) => {
@@ -194,17 +196,28 @@ const Game: React.FC = () => {
     scene.add(room);
 
     // Floor
-    const floorGeometry = new THREE.PlaneGeometry(50, 50);
-    const floorMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffcacc,
-      roughness: 0.8,
-      side: THREE.DoubleSide,
+    const floorScale = 1.5; // Adjust this scale as needed
+    const parquetLoader = new GLTFLoader();     
+
+    parquetLoader.load('models/floor_pixel.glb', (gltf) => {
+      const parquetTile = gltf.scene;
+      const tileCount = 20; // Adjust the number of tiles as needed
+
+      for (let i = -tileCount; i <= tileCount; i++) {
+        for (let j = -tileCount; j <= tileCount; j++) {
+          const tileClone = parquetTile.clone();
+          tileClone.position.set(i * floorScale, 0.01, j * floorScale); // Ensure the y-position is set to 0.01
+          tileClone.scale.setScalar(floorScale);
+          tileClone.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              (child as THREE.Mesh).castShadow = false;
+              (child as THREE.Mesh).receiveShadow = false; 
+            }
+          });
+          scene.add(tileClone);
+        }
+      }
     });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0.01;
-    floor.receiveShadow = true;
-    scene.add(floor);
 
     // Player (Katamari)
     const playerGeometry = new THREE.SphereGeometry(0.5, 32, 32);
@@ -328,7 +341,7 @@ const Game: React.FC = () => {
     const playerDirection = new THREE.Vector3(0, 0, -1);
     const rotationSpeed = 0.03;
     const acceleration = 0.003;
-    const maxSpeed = 0.1;
+    const maxSpeed = 0.3;
     const friction = 0.9;
     const bounceForce = 0.4;
     const gravity = 0.01;
@@ -531,7 +544,7 @@ const Game: React.FC = () => {
               });
 
               // Adjust player size
-              const targetScale = newPlayerSize; //gameState.playerSize;
+              const targetScale = gameState.playerSize * 1.1;
               player.scale.lerp(
                 new THREE.Vector3(targetScale, targetScale, targetScale),
                 0.2
