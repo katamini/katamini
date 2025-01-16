@@ -27,7 +27,7 @@ const gameObjects: GameObject[] = [
   
   // Tier 4 (10-20cm)
   { type: 'pot', size: 12, model: 'models/flowerpot.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 0.4, color: '#9C27B0', sound: 'music/blips/10.mp3' },
-  // { type: 'box', size: 15, model: 'models/none.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
+  { type: 'box', size: 15, model: 'models/none.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
   // { type: 'chair', size: 12, model: 'models/chair.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 0.07, color: '#795548', sound: 'music/blips/02.mp3' },
   
   // Tier 5 (20cm+)
@@ -342,6 +342,9 @@ const Game: React.FC = () => {
     const jumpForce = 0.2;
     let isGrounded = false;
 
+    const rotationAxis = new THREE.Vector3();
+    const previousPosition = new THREE.Vector3();
+
     // Camera setup
     const cameraOffset = new THREE.Vector3(0, 1, 2.5);
     const minZoom = 2.5;
@@ -476,23 +479,21 @@ const Game: React.FC = () => {
               scene.remove(object);
               totalObjects--; // Decrement total objects count
 
-              // Add to collected objects with position on the surface of the ball
-              const surfacePosition = new THREE.Vector3(
-                (Math.random() - 0.5) * player.scale.x,
-                (Math.random() - 0.5) * player.scale.x,
-                (Math.random() - 0.5) * player.scale.x
-              )
-                .normalize()
-                .multiplyScalar(player.scale.x * 0.5);
-              object.position.copy(surfacePosition);
-              // object.aura.visible = false;
-              
+              // Calculate the collision point relative to the player's center
+              const collisionPoint = object.position.clone().sub(player.position);
+              collisionPoint.normalize().multiplyScalar(player.scale.x * 0.5);
+
+              // Set the object's position to the collision point
+              object.position.copy(collisionPoint);
+
+              // Reset the object's rotation
+              object.rotation.set(0, 0, 0);
+
               // Scale the object to be more visible on the surface
               const scaleFactor = Math.max(0.1, object.userData.size / gameState.playerSize);
-              object.scale.multiplyScalar(0.6); // scaleFactor
-              
+              object.scale.multiplyScalar(scaleFactor * 0.6);
+
               collectedObjectsContainer.add(object);
-              object.userData.orbitOffset = Math.random() * Math.PI * 2;
 
               // Play blip sound
               if (blipSoundRef.current) {
@@ -519,9 +520,9 @@ const Game: React.FC = () => {
                     {
                       type: "object",
                       size: object.userData.size,
-                      position: surfacePosition.toArray(),
+                      position: collisionPoint.toArray(),
                       rotation: [0, 0, 0],
-                      scale: object.scale * 0.8,
+                      scale: object.scale.toArray(),
                       model: "",
                       color: "#ffffff",
                     },
@@ -534,29 +535,6 @@ const Game: React.FC = () => {
               player.scale.lerp(
                 new THREE.Vector3(targetScale, targetScale, targetScale),
                 0.1
-              );
-
-              // Adjust collected objects
-              collectedObjectsContainer.children.forEach(
-                (child: THREE.Object3D) => {
-                  const childSize = child.userData.size;
-                  const childScaleFactor = Math.max(0.1, childSize / gameState.playerSize);
-                  child.scale.setScalar(0.5);
-
-                  // Remove objects that are too small to see
-                  if (childScaleFactor < 0.05) {
-                    collectedObjectsContainer.remove(child);
-                  } else {
-                    // Adjust position to orbit around the growing ball
-                    const orbitRadius = player.scale.x * 0.7;
-                    const angle = time * 0.5 + child.userData.orbitOffset;
-                    child.position.set(
-                      Math.cos(angle) * orbitRadius,
-                      Math.sin(angle * 0.7) * orbitRadius * 0.5,
-                      Math.sin(angle) * orbitRadius
-                    );
-                  }
-                }
               );
 
               cameraOffset.z = Math.max(2.5, player.scale.x * 3);
@@ -591,8 +569,18 @@ const Game: React.FC = () => {
       // Ensure player stays above the ground
       player.position.y = Math.max(player.scale.y * 0.5, player.position.y);
 
-      // Rotate collected objects container
-      collectedObjectsContainer.rotation.x += 0.05;
+      // Update ball rotation based on movement
+      if (playerVelocity.length() > 0.001) {
+        // Calculate the rotation axis (perpendicular to movement direction)
+        rotationAxis.copy(playerVelocity).normalize();
+        rotationAxis.cross(new THREE.Vector3(0, 1, 0));
+        
+        // Calculate rotation amount based on distance moved
+        const rotationSpeed = playerVelocity.length() * 2;
+        
+        // Apply rotation to the player ball (which includes the collected objects)
+        player.rotateOnAxis(rotationAxis, rotationSpeed);
+      }
 
       // Update camera zoom based on player size
       const targetZoom = THREE.MathUtils.clamp(
@@ -682,3 +670,4 @@ const refreshPage = () => {
 };
 
 export default Game;
+
