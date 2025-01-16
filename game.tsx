@@ -784,6 +784,12 @@ const Game: React.FC = () => {
                   ],
                 };
               });
+              
+              // Ensure the player's scale is updated correctly when playerSize changes
+              useEffect(() => {
+                // Update player scale when playerSize changes
+                player.scale.setScalar(gameState.playerSize * 0.25);
+              }, [gameState.playerSize]);
 
                 // Keep roomba on the ground after scaling
                 player.position.y = 0.1 * player.scale.y;
