@@ -463,28 +463,23 @@ const Game: React.FC = () => {
               }
               totalObjects--;
 
-              // Calculate attachment position based on collision direction
-              const collisionDirection = object.position.clone().sub(player.position).normalize();
+              // Generate random spherical coordinates for full sphere coverage
+              const phi = Math.random() * Math.PI * 2; // Random angle around the sphere (0 to 2π)
+              const theta = Math.acos(2 * Math.random() - 1); // Random angle from top to bottom (-1 to 1)
+              const radius = player.scale.x * 0.5;
               
-              // Create a perpendicular vector for rotation
-              const perpAxis = new THREE.Vector3(
-                Math.random() - 0.5,
-                Math.random() - 0.5,
-                Math.random() - 0.5
-              ).normalize();
+              // Convert spherical to Cartesian coordinates
+              const surfacePosition = new THREE.Vector3(
+                radius * Math.sin(theta) * Math.cos(phi),
+                radius * Math.sin(theta) * Math.sin(phi),
+                radius * Math.cos(theta)
+              );
               
-              // Rotate the collision direction by a random angle
-              const rotationAngle = (Math.random() * Math.PI * 2);
-              collisionDirection.applyAxisAngle(perpAxis, rotationAngle);
-              
-              // Calculate final surface position
-              const surfacePosition = collisionDirection.multiplyScalar(player.scale.x * 0.5);
-              
-              // Add slight randomness to prevent exact stacking
+              // Add tiny random offset to prevent z-fighting
               surfacePosition.add(new THREE.Vector3(
-                (Math.random() - 0.5) * 0.1,
-                (Math.random() - 0.5) * 0.1,
-                (Math.random() - 0.5) * 0.1
+                (Math.random() - 0.5) * 0.05,
+                (Math.random() - 0.5) * 0.05,
+                (Math.random() - 0.5) * 0.05
               ).multiplyScalar(player.scale.x));
 
               object.position.copy(surfacePosition);
