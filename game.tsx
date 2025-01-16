@@ -465,13 +465,26 @@ const Game: React.FC = () => {
 
               // Calculate attachment position based on collision direction
               const collisionDirection = object.position.clone().sub(player.position).normalize();
+              
+              // Create a perpendicular vector for rotation
+              const perpAxis = new THREE.Vector3(
+                Math.random() - 0.5,
+                Math.random() - 0.5,
+                Math.random() - 0.5
+              ).normalize();
+              
+              // Rotate the collision direction by a random angle
+              const rotationAngle = (Math.random() * Math.PI * 2);
+              collisionDirection.applyAxisAngle(perpAxis, rotationAngle);
+              
+              // Calculate final surface position
               const surfacePosition = collisionDirection.multiplyScalar(player.scale.x * 0.5);
               
-              // Add slight randomness to prevent stacking
+              // Add slight randomness to prevent exact stacking
               surfacePosition.add(new THREE.Vector3(
-                (Math.random() - 0.5) * 0.2,
-                (Math.random() - 0.5) * 0.2,
-                (Math.random() - 0.5) * 0.2
+                (Math.random() - 0.5) * 0.1,
+                (Math.random() - 0.5) * 0.1,
+                (Math.random() - 0.5) * 0.1
               ).multiplyScalar(player.scale.x));
 
               object.position.copy(surfacePosition);
