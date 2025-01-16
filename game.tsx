@@ -12,13 +12,13 @@ import type { GameObject, GameState } from "./types/game";
 const gameObjects: GameObject[] = [
   // Tier 1 (0-2cm)
   { type: 'paperclip', size: 0.5, model: 'models/none.glb', position: [1, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#A1A1A1', sound: 'music/blips/01.mp3' },
-  { type: 'paperclip', size: 1, model: 'models/paperclip.glb', position: [-1, 0, 2], rotation: [0, 0, 0], scale: 1, color: '#F48FB1', round: true, sound: 'music/blips/02.mp3' },
+  { type: 'paperclip', size: 1, model: 'models/paperclip.glb', position: [-1, 0, 2], rotation: [0, 0, 0], scale: 1.2, color: '#F48FB1', round: true, sound: 'music/blips/02.mp3' },
   { type: 'coin1', size: 2, model: 'models/coin.glb', position: [2, 0, -1], rotation: [0, 0, 0], scale: 0.3, color: '#FFD700', round: true, sound: 'music/blips/03.mp3' },
   
   // Tier 2 (2-5cm)
   { type: 'coin2', size: 2, model: 'models/coin.glb', position: [-2, 0, -2], rotation: [0, 0, 0], scale: 0.5, color: '#4CAF50', round: true, sound: 'music/blips/04.mp3' },
-  { type: 'eraser', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.3, color: '#9E9E9E', round: false, sound: 'music/blips/05.mp3' },
-  { type: 'paperclip', size: 3, model: 'models/cookie.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3', round: false, sound: 'music/blips/06.mp3' },
+  { type: 'eraser', size: 3, model: 'models/eraser.glb', position: [3, 0, 3], rotation: [0, 0, 0], scale: 0.2, color: '#9E9E9E', round: false, sound: 'music/blips/05.mp3' },
+  { type: 'paperclip', size: 4, model: 'models/cookie.glb', position: [-3, 0, 1], rotation: [0, 0, 0], scale: 1, color: '#2196F3', round: true, sound: 'music/blips/06.mp3' },
   
   // Tier 3 (5-10cm)
   { type: 'book', size: 5, model: 'models/books.glb', position: [-4, 0, -4], rotation: [0, 0, 0], scale: 0.25, color: '#795548', sound: 'music/blips/08.mp3' },
