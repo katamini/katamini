@@ -209,6 +209,8 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
   return distributed;
 };
 
+// Replace the old player size growth logic with new growth logic based on the current object class
+
 const Game: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -217,6 +219,7 @@ const Game: React.FC = () => {
     playerSize: 0.5,
     collectedObjects: [],
     timeElapsed: 0,
+    currentClass: 0, // Add currentClass to track the current object class
   });
   const [userInteracted, setUserInteracted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -654,7 +657,6 @@ const Game: React.FC = () => {
       nextPosition.z = Math.max(-24, Math.min(24, nextPosition.z));
 
       // Check collisions with objects
-      // Check collisions with objects
       let collisionOccurred = false;
       objects.forEach((object, index) => {
         if (object.parent === scene) {
@@ -724,225 +726,232 @@ const Game: React.FC = () => {
               }
 
               // Update game state
-              setGameState((prev) => {
-                // Find the smallest remaining object in scene
-                const smallestRemaining = objects.reduce(
-                  (smallest, obj) => {
-                    if (
-                      obj.parent === scene &&
-                      obj.userData.size < smallest.userData.size
-                    ) {
-                      return obj;
-                    }
-                    return smallest;
-                  },
-                  {
-                    userData: {
-                      size: Infinity,
+                setGameState((prev) => {
+                  // Find the smallest remaining object in the scene
+                  const smallestRemaining = objects.reduce(
+                    (smallest, obj) => {
+                      if (
+                        obj.parent === scene &&
+                        obj.userData.size < smallest.userData.size
+                      ) {
+                        return obj;
+                      }
+                      return smallest;
                     },
-                  }
-                );
-
-                // If moving to new size class (aura switch), grow significantly
-                const movingToNewClass = !prev.collectedObjects.some(
-                  (obj) => obj.size <= smallestRemaining.userData.size
-                );
-
-                const newPlayerSize = movingToNewClass
-                  ? prev.playerSize * 1.5 // Significant growth when completing a size class
-                  : prev.playerSize; // No growth otherwise
-
-                return {
-                  ...prev,
-                  playerSize: newPlayerSize,
-                  collectedObjects: [
-                    ...prev.collectedObjects,
                     {
-                      type: "object",
-                      size: object.userData.size,
-                      position: surfacePosition.toArray(),
-                      rotation: [0, 0, 0],
-                      scale: object.scale.x,
-                      model: "",
-                      color: "#ffffff",
-                    },
-                  ],
-                };
-              });
+                      userData: {
+                        size: Infinity,
+                      },
+                    }
+                  );
 
-              // Keep roomba on ground after scaling
-              player.position.y = 0.1 * player.scale.y;
+                  // New growth logic based on the current object class
+                  let newPlayerSize = prev.playerSize;
+                  let newClass = prev.currentClass;
+                  const currentClass = sizeTiers[prev.currentClass];
+                  const objectsInClass = prev.collectedObjects.filter(
+                    (obj) =>
+                      obj.size >= currentClass.min &&
+                      obj.size <= currentClass.max
+                  );
 
-              // Adjust player size
-              const targetScale = gameState.playerSize * 1.1;
-              player.scale.lerp(
-                new THREE.Vector3(targetScale, targetScale, targetScale),
-                0.2
-              );
+                  const allObjectsInClassCaptured =
+                    objectsInClass.length + 1 >= currentClass.requiredCount;
 
-              // Update collected objects positions
-              collectedObjectsContainer.children.forEach(
-                (child: THREE.Object3D) => {
-                  if (child.userData.size < gameState.playerSize * 0.08) {
-                    collectedObjectsContainer.remove(child);
-                    return;
+                  if (
+                    allObjectsInClassCaptured &&
+                    prev.currentClass < sizeTiers.length - 1
+                  ) {
+                    newPlayerSize += currentClass.growthRate;
+                    newClass += 1; // Move to the next class
                   }
 
-                  const initialPos = child.userData.initialPosition;
-                  const currentRadius = player.scale.x * 0.5;
+                  return {
+                    ...prev,
+                    playerSize: newPlayerSize,
+                    currentClass: newClass,
+                    collectedObjects: [
+                      ...prev.collectedObjects,
+                      {
+                        type: "object",
+                        size: object.userData.size,
+                        position: surfacePosition.toArray(),
+                        rotation: [0, 0, 0],
+                        scale: object.scale.x,
+                        model: "",
+                        color: "#ffffff",
+                      },
+                    ],
+                  };
+                });
 
-                  // Calculate movement-based rotation
-                  const movementAngle = Math.atan2(
-                    playerVelocity.x,
-                    playerVelocity.z
-                  );
-                  const rotationSpeed = playerVelocity.length() * 2;
+                // Keep roomba on the ground after scaling
+                player.position.y = 0.1 * player.scale.y;
 
-                  // Rotate position based on movement
-                  const rotatedTheta =
-                    initialPos.theta + movementAngle * rotationSpeed;
+                // Update collected objects positions
+                collectedObjectsContainer.children.forEach(
+                  (child: THREE.Object3D) => {
+                    if (child.userData.size < gameState.playerSize * 0.08) {
+                      collectedObjectsContainer.remove(child);
+                      return;
+                    }
 
-                  child.position.set(
-                    currentRadius *
-                      Math.sin(initialPos.phi) *
-                      Math.cos(rotatedTheta),
-                    currentRadius *
-                      Math.sin(initialPos.phi) *
-                      Math.sin(rotatedTheta),
-                    currentRadius * Math.cos(initialPos.phi)
-                  );
-                }
-              );
+                    const initialPos = child.userData.initialPosition;
+                    const currentRadius = player.scale.x * 0.5;
 
-              cameraOffset.z = Math.max(2.5, player.scale.x * 3);
-            } else {
-              // Bounce off larger objects
-              collisionOccurred = true;
-              const pushDirection = nextPosition
-                .clone()
-                .sub(object.position)
-                .normalize();
-              playerVelocity.reflect(pushDirection).multiplyScalar(bounceForce);
+                    // Calculate movement-based rotation
+                    const movementAngle = Math.atan2(
+                      playerVelocity.x,
+                      playerVelocity.z
+                    );
+                    const rotationSpeed = playerVelocity.length() * 2;
 
-              // Add squish effect to the player
-              player.scale.x *= 0.95;
-              player.scale.z *= 1.05;
-              setTimeout(() => {
-                player.scale.x /= 0.95;
-                player.scale.z /= 1.05;
-              }, 100);
+                    // Rotate position based on movement
+                    const rotatedTheta =
+                      initialPos.theta + movementAngle * rotationSpeed;
+
+                    child.position.set(
+                      currentRadius *
+                        Math.sin(initialPos.phi) *
+                        Math.cos(rotatedTheta),
+                      currentRadius *
+                        Math.sin(initialPos.phi) *
+                        Math.sin(rotatedTheta),
+                      currentRadius * Math.cos(initialPos.phi)
+                    );
+                  }
+                );
+
+                cameraOffset.z = Math.max(2.5, player.scale.x * 3);
+              } else {
+                // Bounce off larger objects
+                collisionOccurred = true;
+                const pushDirection = nextPosition
+                  .clone()
+                  .sub(object.position)
+                  .normalize();
+                playerVelocity
+                  .reflect(pushDirection)
+                  .multiplyScalar(bounceForce);
+
+                // Add squish effect to the player
+                player.scale.x *= 0.95;
+                player.scale.z *= 1.05;
+                setTimeout(() => {
+                  player.scale.x /= 0.95;
+                  player.scale.z /= 1.05;
+                }, 100);
+              }
             }
           }
+        });
+
+        // Update player position if no collision occurred
+        if (!collisionOccurred) {
+          player.position.copy(nextPosition);
+        } else {
+          player.position.add(playerVelocity);
         }
-      });
-      // END
 
-      // Update player position if no collision occurred
-      if (!collisionOccurred) {
-        player.position.copy(nextPosition);
-      } else {
-        player.position.add(playerVelocity);
-      }
+        // Ensure player stays above the ground
+        player.position.y = Math.max(player.scale.y * 0.5, player.position.y);
 
-      // Ensure player stays above the ground
-      player.position.y = Math.max(player.scale.y * 0.5, player.position.y);
+        // Rotate collected objects container
+        // collectedObjectsContainer.rotation.x += 0.05;
 
-      // Rotate collected objects container
-      // collectedObjectsContainer.rotation.x += 0.05;
-
-      // Update camera zoom based on player size
-      const targetZoom = THREE.MathUtils.clamp(
-        player.scale.x * 3,
-        minZoom,
-        maxZoom
-      );
-      currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, 0.1);
-      cameraOffset.z = currentZoom;
-
-      // Update camera position
-      const idealOffset = cameraOffset
-        .clone()
-        .applyAxisAngle(
-          new THREE.Vector3(0, 1, 0),
-          Math.atan2(playerDirection.x, playerDirection.z)
+        // Update camera zoom based on player size
+        const targetZoom = THREE.MathUtils.clamp(
+          player.scale.x * 3,
+          minZoom,
+          maxZoom
         );
-      camera.position.lerp(player.position.clone().add(idealOffset), 0.1);
-      camera.lookAt(player.position);
+        currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, 0.1);
+        cameraOffset.z = currentZoom;
 
-      renderer.render(scene, camera);
-    };
+        // Update camera position
+        const idealOffset = cameraOffset
+          .clone()
+          .applyAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            Math.atan2(playerDirection.x, playerDirection.z)
+          );
+        camera.position.lerp(player.position.clone().add(idealOffset), 0.1);
+        camera.lookAt(player.position);
 
-    // Keyboard controls
-    const keys: {
-      [key: string]: boolean;
-    } = {};
-    const onKeyDown = (event: KeyboardEvent) => {
-      keys[event.code] = true;
-      if (event.code === "Space") {
-        event.preventDefault();
-      }
-    };
-    const onKeyUp = (event: KeyboardEvent) => {
-      keys[event.code] = false;
-    };
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
+        renderer.render(scene, camera);
+      };
 
-    // Handle window resize
-    const onWindowResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener("resize", onWindowResize);
+      // Keyboard controls
+      const keys: {
+        [key: string]: boolean;
+      } = {};
+      const onKeyDown = (event: KeyboardEvent) => {
+        keys[event.code] = true;
+        if (event.code === "Space") {
+          event.preventDefault();
+        }
+      };
+      const onKeyUp = (event: KeyboardEvent) => {
+        keys[event.code] = false;
+      };
+      window.addEventListener("keydown", onKeyDown);
+      window.addEventListener("keyup", onKeyUp);
 
-    // Start the game loop
-    animate();
+      // Handle window resize
+      const onWindowResize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener("resize", onWindowResize);
 
-    // Cleanup
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-      window.removeEventListener("resize", onWindowResize);
-      mountRef.current?.removeChild(renderer.domElement);
-    };
-  }, []);
+      // Start the game loop
+      animate();
 
-  return (
-    <>
-      <div ref={mountRef} />{" "}
-      <SizeIndicator size={gameState.playerSize} time={gameState.timeElapsed} />{" "}
-      <audio ref={audioRef} /> <audio ref={blipSoundRef} />{" "}
-      {gameOver && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
-          <div className="bg-white p-8 rounded-lg text-center">
-            <h2 className="text-3xl font-bold mb-4"> Congratulations! </h2>{" "}
-            <p className="text-xl mb-2"> You 've captured all the objects!</p>{" "}
-            <p className="text-lg">
-              Final size: {Math.floor(gameState.playerSize)}
-              cm {Math.floor((gameState.playerSize % 1) * 10)}
-              mm{" "}
-            </p>{" "}
-            <p className="text-lg">
-              Time: {Math.floor(gameState.timeElapsed / 60)}m{" "}
-              {gameState.timeElapsed % 60}s{" "}
-            </p>{" "}
-            <br />
-            <button type="button" onClick={refreshPage}>
-              {" "}
-              <span> Play Again </span>
-            </button>{" "}
-            <br />
-            <img src="https://i.imgur.com/n1lfojs.gif" />
-          </div>{" "}
-        </div>
-      )}{" "}
-    </>
-  );
-};
+      // Cleanup
+      return () => {
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+        window.removeEventListener("resize", onWindowResize);
+        mountRef.current?.removeChild(renderer.domElement);
+      };
+    }, []);
 
-const refreshPage = () => {
-  window.location.reload();
-};
+    return (
+      <>
+        <div ref={mountRef} />{" "}
+        <SizeIndicator size={gameState.playerSize} time={gameState.timeElapsed} />{" "}
+        <audio ref={audioRef} /> <audio ref={blipSoundRef} />{" "}
+        {gameOver && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
+            <div className="bg-white p-8 rounded-lg text-center">
+              <h2 className="text-3xl font-bold mb-4"> Congratulations! </h2>{" "}
+              <p className="text-xl mb-2"> You 've captured all the objects!</p>{" "}
+              <p className="text-lg">
+                Final size: {Math.floor(gameState.playerSize)}
+                cm {Math.floor((gameState.playerSize % 1) * 10)}
+                mm{" "}
+              </p>{" "}
+              <p className="text-lg">
+                Time: {Math.floor(gameState.timeElapsed / 60)}m{" "}
+                {gameState.timeElapsed % 60}s{" "}
+              </p>{" "}
+              <br />
+              <button type="button" onClick={refreshPage}>
+                {" "}
+                <span> Play Again </span>
+              </button>{" "}
+              <br />
+              <img src="https://i.imgur.com/n1lfojs.gif" />
+            </div>{" "}
+          </div>
+        )}{" "}
+      </>
+    );
+  };
 
-export default Game;
+  const refreshPage = () => {
+    window.location.reload();
+  };
+
+  export default Game;
