@@ -209,13 +209,13 @@ const Game: React.FC = () => {
     // Player (Katamari)
     const playerGeometry = new THREE.SphereGeometry(0.5, 32, 32);
     const playerMaterial = new THREE.MeshStandardMaterial({
-      color: 0x4caf50, // Green
+      color: 0x4caf50,
       roughness: 0.3,
       metalness: 0.2,
     });
     const player = new THREE.Mesh(playerGeometry, playerMaterial);
-    player.position.y = 0.25; // Start closer to the ground
-    player.scale.setScalar(0.25); // Initial size
+    player.position.y = 0.25;
+    player.scale.setScalar(0.25);
     player.castShadow = true;
     player.receiveShadow = true;
     scene.add(player);
@@ -237,99 +237,92 @@ const Game: React.FC = () => {
     // Load game objects
     const objects: THREE.Object3D[] = [];
     const auras: THREE.Mesh[] = [];
-    let totalObjects = objects.length; 
+    let totalObjects = objects.length;
 
     distributeObjects(gameObjects).forEach((obj) => {
-  loader.load(
-    obj.model,
-    (gltf) => {
-      const model = gltf.scene;
-      model.position.set(...obj.position);
-      model.rotation.set(...obj.rotation);
-      if (obj.round){
-        // Add random rotation
-        model.rotation.set(
-          obj.rotation[0],
-          obj.rotation[1] + Math.random() * Math.PI,
-          obj.rotation[2] + Math.random() * Math.PI
-        );
-        // adjust to the floor
-        model.position.y = 0.05;
-        
-      } else {
-         model.rotation.set(
-          0,
-          obj.rotation[2] + Math.random() * Math.PI,
-          0,
-        );
-        // Adjust position to be above the floor
-        model.position.y = 0.05;
-      }
-      // Apply the scale parameter
-      model.scale.setScalar(obj.scale);
-      model.userData.size = obj.size; // Set userData.size for interaction logic
+      loader.load(
+        obj.model,
+        (gltf) => {
+          const model = gltf.scene;
+          model.position.set(...obj.position);
+          model.rotation.set(...obj.rotation);
+          if (obj.round) {
+            model.rotation.set(
+              obj.rotation[0],
+              obj.rotation[1] + Math.random() * Math.PI,
+              obj.rotation[2] + Math.random() * Math.PI
+            );
+            model.position.y = 0.05;
+          } else {
+            model.rotation.set(
+              0,
+              obj.rotation[2] + Math.random() * Math.PI,
+              0
+            );
+            model.position.y = 0.05;
+          }
+          model.scale.setScalar(obj.scale);
+          model.userData.size = obj.size;
 
-      
+          model.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              (child as THREE.Mesh).castShadow = true;
+              (child as THREE.Mesh).receiveShadow = true;
+            }
+          });
+          scene.add(model);
+          objects.push(model);
 
-      model.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          (child as THREE.Mesh).castShadow = true;
-          (child as THREE.Mesh).receiveShadow = true;
+          // Create aura
+          const auraGeometry = new THREE.SphereGeometry(
+            obj.size * 0.15,
+            32,
+            32
+          );
+          const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+          auraMesh.scale.multiplyScalar(1.2);
+          auraMesh.visible = false;
+          model.add(auraMesh);
+          auras.push(auraMesh);
+        },
+        undefined,
+        () => {
+          // If loading fails, create a default block
+          const geometry = new THREE.BoxGeometry(
+            obj.size * 0.1,
+            obj.size * 0.1,
+            obj.size * 0.1
+          );
+          const material = new THREE.MeshStandardMaterial({ color: obj.color });
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(...obj.position);
+          mesh.rotation.set(...obj.rotation);
+          mesh.scale.setScalar(obj.scale);
+
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          mesh.userData.size = obj.size;
+
+          mesh.position.y = obj.size * 0.005;
+
+          scene.add(mesh);
+          objects.push(mesh);
+
+          // Create aura
+          const auraGeometry = new THREE.SphereGeometry(
+            obj.size * 0.06,
+            32,
+            32
+          );
+          const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
+          auraMesh.scale.multiplyScalar(1.2);
+          auraMesh.visible = false;
+          mesh.add(auraMesh);
+          auras.push(auraMesh);
         }
-      });
-      scene.add(model);
-      objects.push(model);
-
-      // Create aura
-      const auraGeometry = new THREE.SphereGeometry(
-        obj.size * 0.15,
-        32,
-        32
       );
-      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
-      auraMesh.scale.multiplyScalar(1.2);
-      auraMesh.visible = false;
-      model.add(auraMesh);
-      auras.push(auraMesh);
-    },
-    undefined,
-    () => {
-      // If loading fails, create a default block
-      const geometry = new THREE.BoxGeometry(
-        obj.size * 0.1,
-        obj.size * 0.1,
-        obj.size * 0.1
-      );
-      const material = new THREE.MeshStandardMaterial({ color: obj.color });
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(...obj.position);
-      mesh.rotation.set(...obj.rotation);
-      mesh.scale.setScalar(obj.scale); // Apply the scale parameter
+    });
 
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mesh.userData.size = obj.size; // Set userData.size for interaction logic
-
-      // Adjust position to be above the floor
-      mesh.position.y = obj.size * 0.005;
-
-      scene.add(mesh);
-      objects.push(mesh);
-
-      // Create aura
-      const auraGeometry = new THREE.SphereGeometry(
-        obj.size * 0.06,
-        32,
-        32
-      );
-      const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial.clone());
-      auraMesh.scale.multiplyScalar(1.2);
-      auraMesh.visible = false;
-      mesh.add(auraMesh);
-      auras.push(auraMesh);
-    }
-  );
-});
     // Player movement properties
     const playerVelocity = new THREE.Vector3();
     const playerDirection = new THREE.Vector3(0, 0, -1);
@@ -342,14 +335,11 @@ const Game: React.FC = () => {
     const jumpForce = 0.2;
     let isGrounded = false;
 
-    const rotationAxis = new THREE.Vector3();
-    const previousPosition = new THREE.Vector3();
-
     // Camera setup
     const cameraOffset = new THREE.Vector3(0, 1, 2.5);
     const minZoom = 2.5;
-    const maxZoom = 100; 
-    let currentZoom = minZoom; 
+    const maxZoom = 100;
+    let currentZoom = minZoom;
     camera.position.copy(player.position).add(cameraOffset);
     camera.lookAt(player.position);
 
@@ -359,7 +349,7 @@ const Game: React.FC = () => {
     // Game loop
     let time = 0;
     const animate = () => {
-      if (finished) return; // Stop animation when game is over
+      if (finished) return;
 
       requestAnimationFrame(animate);
       time += 0.016;
@@ -384,7 +374,7 @@ const Game: React.FC = () => {
       );
 
       // Add logic to check if all objects are captured
-      if ((totalObjects + objects.length === 0) && totalObjects != 0 && !finished) { 
+      if ((totalObjects + objects.length === 0) && totalObjects != 0 && !finished) {
         console.log("Game Completed!", time, gameState, objects.length);
         audioRef.current?.pause();
         audioRef.current = null;
@@ -399,7 +389,6 @@ const Game: React.FC = () => {
           const aura = auras[index];
           if (aura) {
             aura.material.uniforms.time.value = time;
-            // Make objects collectible if they're the smallest remaining or within 20% of the player's size
             aura.visible =
               object.userData.size <=
               Math.max(
@@ -415,27 +404,22 @@ const Game: React.FC = () => {
       if (keys.ArrowUp) moveDirection.z -= 1;
       if (keys.ArrowDown) moveDirection.z += 1;
 
-      // Apply acceleration in the player's direction
       playerVelocity.add(
         playerDirection.clone().multiplyScalar(moveDirection.z * acceleration)
       );
 
-      // Apply gravity
       playerVelocity.y -= gravity;
 
-      // Check if player is on the ground
       isGrounded = player.position.y <= player.scale.y * 0.5;
       if (isGrounded) {
         player.position.y = player.scale.y * 0.5;
         playerVelocity.y = Math.max(0, playerVelocity.y);
       }
 
-      // Jumping
       if (keys.Space && isGrounded) {
         playerVelocity.y = jumpForce;
       }
 
-      // Steering
       if (keys.ArrowLeft) {
         playerDirection.applyAxisAngle(
           new THREE.Vector3(0, 1, 0),
@@ -449,16 +433,12 @@ const Game: React.FC = () => {
         );
       }
 
-      // Apply friction and limit speed
       playerVelocity.multiplyScalar(friction);
       if (playerVelocity.length() > maxSpeed) {
         playerVelocity.normalize().multiplyScalar(maxSpeed);
       }
 
-      // Update player position
       const nextPosition = player.position.clone().add(playerVelocity);
-
-      // Keep player within bounds
       nextPosition.x = Math.max(-24, Math.min(24, nextPosition.x));
       nextPosition.z = Math.max(-24, Math.min(24, nextPosition.z));
 
@@ -467,35 +447,42 @@ const Game: React.FC = () => {
       objects.forEach((object, index) => {
         if (object.parent === scene) {
           const distance = nextPosition.distanceTo(object.position);
-          const combinedRadius =
-            player.scale.x * 0.5 + object.userData.size * 0.05;
+          const combinedRadius = player.scale.x * 0.5 + object.userData.size * 0.05;
 
           if (distance < combinedRadius) {
             if (
               object.userData.size <=
               Math.max(gameState.playerSize * 1.2, smallestObject.userData.size)
             ) {
-              // Collect object
+              // Remove object and its aura
               scene.remove(object);
-              totalObjects--; // Decrement total objects count
+              const aura = auras[index];
+              if (aura) {
+                aura.visible = false;
+                aura.parent?.remove(aura);
+              }
+              totalObjects--;
 
-              // Calculate the collision point relative to the player's center
-              const collisionPoint = object.position.clone().sub(player.position);
-              collisionPoint.normalize().multiplyScalar(player.scale.x * 0.5);
+              // Calculate attachment position based on collision direction
+              const collisionDirection = object.position.clone().sub(player.position).normalize();
+              const surfacePosition = collisionDirection.multiplyScalar(player.scale.x * 0.5);
+              
+              // Add slight randomness to prevent stacking
+              surfacePosition.add(new THREE.Vector3(
+                (Math.random() - 0.5) * 0.2,
+                (Math.random() - 0.5) * 0.2,
+                (Math.random() - 0.5) * 0.2
+              ).multiplyScalar(player.scale.x));
 
-              // Set the object's position to the collision point
-              object.position.copy(collisionPoint);
+              object.position.copy(surfacePosition);
 
-              // Reset the object's rotation
-              object.rotation.set(0, 0, 0);
-
-              // Scale the object to be more visible on the surface
-              const scaleFactor = Math.max(0.1, object.userData.size / gameState.playerSize);
-              object.scale.multiplyScalar(scaleFactor * 0.6);
+              // Scale object relative to player size
+              const scaleFactor = Math.min(1, object.userData.size / gameState.playerSize);
+              object.scale.multiplyScalar(scaleFactor * 0.4);
 
               collectedObjectsContainer.add(object);
+              object.userData.orbitOffset = Math.random() * Math.PI * 2;
 
-              // Play blip sound
               if (blipSoundRef.current) {
                 blipSoundRef.current.play().catch((error) => {
                   console.log("Failed to play blip sound:", error);
@@ -520,9 +507,9 @@ const Game: React.FC = () => {
                     {
                       type: "object",
                       size: object.userData.size,
-                      position: collisionPoint.toArray(),
+                      position: surfacePosition.toArray(),
                       rotation: [0, 0, 0],
-                      scale: object.scale.toArray(),
+                      scale: object.scale.x,
                       model: "",
                       color: "#ffffff",
                     },
@@ -535,6 +522,25 @@ const Game: React.FC = () => {
               player.scale.lerp(
                 new THREE.Vector3(targetScale, targetScale, targetScale),
                 0.1
+              );
+
+              // Adjust collected objects
+              collectedObjectsContainer.children.forEach(
+                (child: THREE.Object3D) => {
+                  // Remove objects that are too small relative to current player size
+                  if (child.userData.size < gameState.playerSize * 0.15) {
+                    collectedObjectsContainer.remove(child);
+                  } else {
+                    // Adjust position to orbit around the growing ball
+                    const orbitRadius = player.scale.x * 0.7;
+                    const angle = time * 0.5 + child.userData.orbitOffset;
+                    child.position.set(
+                      Math.cos(angle) * orbitRadius,
+                      Math.sin(angle * 0.7) * orbitRadius * 0.5,
+                      Math.sin(angle) * orbitRadius
+                    );
+                  }
+                }
               );
 
               cameraOffset.z = Math.max(2.5, player.scale.x * 3);
@@ -569,18 +575,8 @@ const Game: React.FC = () => {
       // Ensure player stays above the ground
       player.position.y = Math.max(player.scale.y * 0.5, player.position.y);
 
-      // Update ball rotation based on movement
-      if (playerVelocity.length() > 0.001) {
-        // Calculate the rotation axis (perpendicular to movement direction)
-        rotationAxis.copy(playerVelocity).normalize();
-        rotationAxis.cross(new THREE.Vector3(0, 1, 0));
-        
-        // Calculate rotation amount based on distance moved
-        const rotationSpeed = playerVelocity.length() * 2;
-        
-        // Apply rotation to the player ball (which includes the collected objects)
-        player.rotateOnAxis(rotationAxis, rotationSpeed);
-      }
+      // Rotate collected objects container
+      collectedObjectsContainer.rotation.x += 0.05;
 
       // Update camera zoom based on player size
       const targetZoom = THREE.MathUtils.clamp(
@@ -609,7 +605,7 @@ const Game: React.FC = () => {
     const onKeyDown = (event: KeyboardEvent) => {
       keys[event.code] = true;
       if (event.code === "Space") {
-        event.preventDefault(); // Prevent page scrolling
+        event.preventDefault();
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
@@ -670,4 +666,3 @@ const refreshPage = () => {
 };
 
 export default Game;
-
