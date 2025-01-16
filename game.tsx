@@ -328,8 +328,8 @@ const Game: React.FC = () => {
     const playerDirection = new THREE.Vector3(0, 0, -1);
     const rotationSpeed = 0.02;
     const acceleration = 0.003;
-    const maxSpeed = 0.1;
-    const friction = 0.99;
+    const maxSpeed = 0.05;
+    const friction = 0.5;
     const bounceForce = 0.4;
     const gravity = 0.01;
     const jumpForce = 0.2;
