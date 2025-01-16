@@ -27,7 +27,7 @@ const gameObjects: GameObject[] = [
   
   // Tier 4 (10-20cm)
   { type: 'pot', size: 12, model: 'models/flowerpot.glb', position: [-5, 0, 5], rotation: [0, 0, 0], scale: 0.4, color: '#9C27B0', sound: 'music/blips/10.mp3' },
-  { type: 'box', size: 15, model: 'models/none.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
+  // { type: 'box', size: 15, model: 'models/none.glb', position: [6, 0, -5], rotation: [0, 0, 0], scale: 1, color: '#8D6E63', sound: 'music/blips/01.mp3' },
   // { type: 'chair', size: 12, model: 'models/chair.glb', position: [-6, 0, -6], rotation: [0, 0, 0], scale: 0.07, color: '#795548', sound: 'music/blips/02.mp3' },
   
   // Tier 5 (20cm+)
@@ -37,11 +37,11 @@ const gameObjects: GameObject[] = [
 
 // Size tiers for controlled growth
 const sizeTiers = [
-  { min: 0, max: 2, growthRate: 0.01 },
-  { min: 2, max: 5, growthRate: 0.02 },
-  { min: 5, max: 10, growthRate: 0.05 },
-  { min: 10, max: 20, growthRate: 0.1 },
-  { min: 20, max: Infinity, growthRate: 0.2 },
+  { min: 0, max: 2, growthRate: 0.015 },
+  { min: 2, max: 5, growthRate: 0.03 },
+  { min: 5, max: 10, growthRate: 0.07 },
+  { min: 10, max: 20, growthRate: 0.15 },
+  { min: 20, max: Infinity, growthRate: 0.25 },
 ];
 
 // Multiply objects for better distribution
@@ -476,9 +476,9 @@ const Game: React.FC = () => {
 
               object.position.copy(surfacePosition);
 
-              // Scale object relative to player size
-              const scaleFactor = Math.min(1, object.userData.size / gameState.playerSize);
-              object.scale.multiplyScalar(scaleFactor * 0.4);
+              // Scale object relative to player size with enhanced visibility
+              const scaleFactor = Math.min(1.2, object.userData.size / gameState.playerSize);
+              object.scale.multiplyScalar(scaleFactor * 0.8);
 
               collectedObjectsContainer.add(object);
               object.userData.orbitOffset = Math.random() * Math.PI * 2;
@@ -527,8 +527,8 @@ const Game: React.FC = () => {
               // Adjust collected objects
               collectedObjectsContainer.children.forEach(
                 (child: THREE.Object3D) => {
-                  // Remove objects that are too small relative to current player size
-                  if (child.userData.size < gameState.playerSize * 0.15) {
+                  // Keep more small objects visible on the ball
+                  if (child.userData.size < gameState.playerSize * 0.08) {
                     collectedObjectsContainer.remove(child);
                   } else {
                     // Adjust position to orbit around the growing ball
