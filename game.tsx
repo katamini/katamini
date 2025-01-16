@@ -1,229 +1,212 @@
 "use client";
 
-import React, {
-    useEffect,
-    useRef,
-    useState
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import {
-    createNoise2D
-} from "simplex-noise";
-import {
-    GLTFLoader
-} from "three/examples/jsm/loaders/GLTFLoader";
-import {
-    SizeIndicator
-} from "./components/size-indicator";
-import {
-    auraVertexShader,
-    auraFragmentShader
-} from "./shaders/aura";
-import type {
-    GameObject,
-    GameState
-} from "./types/game";
+import { createNoise2D } from "simplex-noise";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { SizeIndicator } from "./components/size-indicator";
+import { auraVertexShader, auraFragmentShader } from "./shaders/aura";
+import type { GameObject, GameState } from "./types/game";
 
 // Organized game objects by size tiers
 const gameObjects: GameObject[] = [
-    // Tier 1 (0-2cm)
-    {
-        type: 'paperclip',
-        size: 0.5,
-        model: 'models/none.glb',
-        position: [1, 0, 1],
-        rotation: [0, 0, 0],
-        scale: 1,
-        color: '#A1A1A1',
-        sound: 'music/blips/01.mp3'
-    },
-    {
-        type: 'paperclip',
-        size: 1,
-        model: 'models/paperclip.glb',
-        position: [-1, 0, 2],
-        rotation: [0, 0, 0],
-        scale: 1,
-        color: '#F48FB1',
-        round: true,
-        sound: 'music/blips/02.mp3'
-    },
-    {
-        type: 'coin1',
-        size: 2,
-        model: 'models/coin.glb',
-        position: [2, 0, -1],
-        rotation: [0, 0, 0],
-        scale: 0.3,
-        color: '#FFD700',
-        round: true,
-        sound: 'music/blips/03.mp3'
-    },
+  // Tier 1 (0-2cm)
+  {
+    type: "paperclip",
+    size: 0.5,
+    model: "models/none.glb",
+    position: [1, 0, 1],
+    rotation: [0, 0, 0],
+    scale: 1,
+    color: "#A1A1A1",
+    sound: "music/blips/01.mp3",
+  },
+  {
+    type: "paperclip",
+    size: 1,
+    model: "models/paperclip.glb",
+    position: [-1, 0, 2],
+    rotation: [0, 0, 0],
+    scale: 1,
+    color: "#F48FB1",
+    round: true,
+    sound: "music/blips/02.mp3",
+  },
+  {
+    type: "coin1",
+    size: 2,
+    model: "models/coin.glb",
+    position: [2, 0, -1],
+    rotation: [0, 0, 0],
+    scale: 0.3,
+    color: "#FFD700",
+    round: true,
+    sound: "music/blips/03.mp3",
+  },
 
-    // Tier 2 (2-5cm)
-    {
-        type: 'coin2',
-        size: 2,
-        model: 'models/coin.glb',
-        position: [-2, 0, -2],
-        rotation: [0, 0, 0],
-        scale: 0.5,
-        color: '#4CAF50',
-        round: true,
-        sound: 'music/blips/04.mp3'
-    },
-    {
-        type: 'eraser',
-        size: 3,
-        model: 'models/eraser.glb',
-        position: [3, 0, 3],
-        rotation: [0, 0, 0],
-        scale: 0.2,
-        color: '#9E9E9E',
-        round: false,
-        sound: 'music/blips/05.mp3'
-    },
-    {
-        type: 'paperclip',
-        size: 4,
-        model: 'models/cookie.glb',
-        position: [-3, 0, 1],
-        rotation: [0, 0, 0],
-        scale: 0.7,
-        color: '#2196F3',
-        round: true,
-        sound: 'music/blips/06.mp3'
-    },
+  // Tier 2 (2-5cm)
+  {
+    type: "coin2",
+    size: 2,
+    model: "models/coin.glb",
+    position: [-2, 0, -2],
+    rotation: [0, 0, 0],
+    scale: 0.5,
+    color: "#4CAF50",
+    round: true,
+    sound: "music/blips/04.mp3",
+  },
+  {
+    type: "eraser",
+    size: 3,
+    model: "models/eraser.glb",
+    position: [3, 0, 3],
+    rotation: [0, 0, 0],
+    scale: 0.2,
+    color: "#9E9E9E",
+    round: false,
+    sound: "music/blips/05.mp3",
+  },
+  {
+    type: "paperclip",
+    size: 4,
+    model: "models/cookie.glb",
+    position: [-3, 0, 1],
+    rotation: [0, 0, 0],
+    scale: 0.7,
+    color: "#2196F3",
+    round: true,
+    sound: "music/blips/06.mp3",
+  },
 
-    // Tier 3 (5-10cm)
-    {
-        type: 'book',
-        size: 5,
-        model: 'models/books.glb',
-        position: [-4, 0, -4],
-        rotation: [0, 0, 0],
-        scale: 0.25,
-        color: '#795548',
-        sound: 'music/blips/08.mp3'
-    },
-    {
-        type: 'duck',
-        size: 7,
-        model: 'models/duck.glb',
-        position: [4, 0, -3],
-        rotation: [0, 0, 0],
-        scale: 0.5,
-        color: '#FF5722',
-        sound: 'music/blips/07.mp3'
-    },
-    {
-        type: 'car',
-        size: 8.5,
-        model: 'models/toy_car.glb',
-        position: [5, 0, 2],
-        rotation: [0, 0, 0],
-        scale: 0.5,
-        color: '#E0E0E0',
-        sound: 'music/blips/09.mp3'
-    },
+  // Tier 3 (5-10cm)
+  {
+    type: "book",
+    size: 5,
+    model: "models/books.glb",
+    position: [-4, 0, -4],
+    rotation: [0, 0, 0],
+    scale: 0.25,
+    color: "#795548",
+    sound: "music/blips/08.mp3",
+  },
+  {
+    type: "duck",
+    size: 7,
+    model: "models/duck.glb",
+    position: [4, 0, -3],
+    rotation: [0, 0, 0],
+    scale: 0.5,
+    color: "#FF5722",
+    sound: "music/blips/07.mp3",
+  },
+  {
+    type: "car",
+    size: 8.5,
+    model: "models/toy_car.glb",
+    position: [5, 0, 2],
+    rotation: [0, 0, 0],
+    scale: 0.5,
+    color: "#E0E0E0",
+    sound: "music/blips/09.mp3",
+  },
 
-    // Tier 4 (10-20cm)
-    {
-        type: 'pot',
-        size: 12,
-        model: 'models/flowerpot.glb',
-        position: [-5, 0, 5],
-        rotation: [0, 0, 0],
-        scale: 0.4,
-        color: '#9C27B0',
-        sound: 'music/blips/10.mp3'
-    },
-    {
-        type: 'chair',
-        size: 13,
-        model: 'models/chair.glb',
-        position: [6, 0, -5],
-        rotation: [0, 0, 0],
-        scale: 0.06,
-        color: '#8D6E63',
-        sound: 'music/blips/01.mp3'
-    },
-    {
-        type: 'trashcan',
-        size: 14,
-        model: 'models/trashcan.glb',
-        position: [-6, 0, -6],
-        rotation: [0, 0, 0],
-        scale: 1,
-        color: '#795548',
-        sound: 'music/blips/02.mp3'
-    },
+  // Tier 4 (10-20cm)
+  {
+    type: "pot",
+    size: 12,
+    model: "models/flowerpot.glb",
+    position: [-5, 0, 5],
+    rotation: [0, 0, 0],
+    scale: 0.4,
+    color: "#9C27B0",
+    sound: "music/blips/10.mp3",
+  },
+  {
+    type: "chair",
+    size: 13,
+    model: "models/chair.glb",
+    position: [6, 0, -5],
+    rotation: [0, 0, 0],
+    scale: 0.06,
+    color: "#8D6E63",
+    sound: "music/blips/01.mp3",
+  },
+  {
+    type: "trashcan",
+    size: 14,
+    model: "models/trashcan.glb",
+    position: [-6, 0, -6],
+    rotation: [0, 0, 0],
+    scale: 1,
+    color: "#795548",
+    sound: "music/blips/02.mp3",
+  },
 
-    // Tier 5 (20cm+)
-    {
-        type: 'sofa',
-        size: 20,
-        model: 'models/sofa.glb',
-        position: [7, 0, 7],
-        rotation: [0, 0, 0],
-        scale: 0.1,
-        color: '#5D4037',
-        sound: 'music/blips/03.mp3'
-    },
-    // { type: 'desk', size: 25, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
+  // Tier 5 (20cm+)
+  {
+    type: "sofa",
+    size: 20,
+    model: "models/sofa.glb",
+    position: [7, 0, 7],
+    rotation: [0, 0, 0],
+    scale: 0.1,
+    color: "#5D4037",
+    sound: "music/blips/03.mp3",
+  },
+  // { type: 'desk', size: 25, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
 ];
 
-const sizeTiers = [{
-        min: 0,
-        max: 2,
-        growthRate: 0.1,
-        requiredCount: 10
-    }, // Tiny objects
-    {
-        min: 2,
-        max: 5,
-        growthRate: 0.15,
-        requiredCount: 10
-    }, // Small objects
-    {
-        min: 5,
-        max: 10,
-        growthRate: 0.2,
-        requiredCount: 10
-    }, // Medium objects
-    {
-        min: 10,
-        max: 20,
-        growthRate: 0.5,
-        requiredCount: 10
-    }, // Large objects
-    {
-        min: 20,
-        max: Infinity,
-        growthRate: 0.8,
-        requiredCount: 1
-    } // Huge objects
+const sizeTiers = [
+  {
+    min: 0,
+    max: 2,
+    growthRate: 0.1,
+    requiredCount: 10,
+  }, // Tiny objects
+  {
+    min: 2,
+    max: 5,
+    growthRate: 0.15,
+    requiredCount: 10,
+  }, // Small objects
+  {
+    min: 5,
+    max: 10,
+    growthRate: 0.2,
+    requiredCount: 10,
+  }, // Medium objects
+  {
+    min: 10,
+    max: 20,
+    growthRate: 0.5,
+    requiredCount: 10,
+  }, // Large objects
+  {
+    min: 20,
+    max: Infinity,
+    growthRate: 0.8,
+    requiredCount: 1,
+  }, // Huge objects
 ];
 
 // Multiply objects for better distribution
 const distributeObjects = (objects: GameObject[]): GameObject[] => {
-    const distributed: GameObject[] = [];
-    objects.forEach((obj) => {
-        const count =
-            obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
-        for (let i = 0; i < count; i++) {
-            const distance = Math.pow(obj.size, 1.05) * 0.6;
-            const angle = Math.random() * Math.PI * 2;
-            distributed.push({
-                ...obj,
-                position: [
-                    Math.cos(angle) * distance, 0, Math.sin(angle) * distance,
-                ],
-                rotation: obj.rotation,
-            });
-        }
-    });
-    return distributed;
+  const distributed: GameObject[] = [];
+  objects.forEach((obj) => {
+    const count =
+      obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
+    for (let i = 0; i < count; i++) {
+      const distance = Math.pow(obj.size, 1.05) * 0.6;
+      const angle = Math.random() * Math.PI * 2;
+      distributed.push({
+        ...obj,
+        position: [Math.cos(angle) * distance, 0, Math.sin(angle) * distance],
+        rotation: obj.rotation,
+      });
+    }
+  });
+  return distributed;
 };
 
 const Game: React.FC = () => {
@@ -245,8 +228,8 @@ const Game: React.FC = () => {
     const randomIndex = Math.floor(Math.random() * sounds.length);
     const sound = new Audio(sounds[randomIndex]);
     sound.volume = 0.4;
-    sound.play().catch(error => {
-      console.log('Failed to play random sound:', error);
+    sound.play().catch((error) => {
+      console.log("Failed to play random sound:", error);
     });
   };
 
@@ -273,8 +256,8 @@ const Game: React.FC = () => {
 
   // music
   useEffect(() => {
-    const audio = new Audio("music/katamini_0"+randoSeed(1,4)+".mp3");
-    const blipSound = new Audio("music/blips/0"+randoSeed(1,9)+".mp3");
+    const audio = new Audio("music/katamini_0" + randoSeed(1, 4) + ".mp3");
+    const blipSound = new Audio("music/blips/0" + randoSeed(1, 9) + ".mp3");
     audio.loop = true;
     audio.volume = 0.4;
     audioRef.current = audio;
@@ -288,16 +271,27 @@ const Game: React.FC = () => {
     };
 
     if (userInteracted) {
-      playRandomSound(['music/effects/01.mp3', 'music/effects/03.mp3', 'music/effects/04.mp3', 'music/effects/05.mp3']);
+      playRandomSound([
+        "music/effects/01.mp3",
+        "music/effects/03.mp3",
+        "music/effects/04.mp3",
+        "music/effects/05.mp3",
+      ]);
       playAudio();
     }
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && userInteracted) {
-        playRandomSound(['music/effects/01.mp3', 'music/effects/02.mp3', 'music/effects/03.mp3', 'music/effects/04.mp3', 'music/effects/05.mp3']);
+        playRandomSound([
+          "music/effects/01.mp3",
+          "music/effects/02.mp3",
+          "music/effects/03.mp3",
+          "music/effects/04.mp3",
+          "music/effects/05.mp3",
+        ]);
         playAudio();
       } else {
-        playRandomSound(['music/effects/02.mp3']);
+        playRandomSound(["music/effects/02.mp3"]);
         audio.pause();
       }
     };
@@ -326,7 +320,9 @@ const Game: React.FC = () => {
       0.1,
       1000
     );
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     mountRef.current.appendChild(renderer.domElement);
@@ -357,15 +353,17 @@ const Game: React.FC = () => {
     scene.add(room);
 
     // Floor
-    const floorTexture = new THREE.TextureLoader().load('textures/floor_carpet.jpg');
+    const floorTexture = new THREE.TextureLoader().load(
+      "textures/floor_carpet.jpg"
+    );
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(50, 50); // Adjust the repeat values as needed
 
     const floorMaterial = new THREE.MeshStandardMaterial({
       map: floorTexture,
-      roughness: 1.0,  // Non-reflective
-      metalness: 0.0,  // Non-reflective
+      roughness: 1.0, // Non-reflective
+      metalness: 0.0, // Non-reflective
       side: THREE.DoubleSide,
     });
 
@@ -377,15 +375,37 @@ const Game: React.FC = () => {
     scene.add(floor);
 
     // Player (Katamari)
-    const playerGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    // Adjust roomba position and scale
+    const playerGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, 32);
     const playerMaterial = new THREE.MeshStandardMaterial({
-      color: 0x4caf50,
-      roughness: 0.3,
-      metalness: 0.2,
+      color: 0x303030,
+      roughness: 0.7,
+      metalness: 0.3,
     });
     const player = new THREE.Mesh(playerGeometry, playerMaterial);
-    player.position.y = 0.25;
+
+    // Add roomba details
+    const topDisc = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.45, 0.45, 0.05, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0x404040,
+      })
+    );
+    topDisc.position.y = 0.1;
+    player.add(topDisc);
+
+    const sensorBump = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 0.1, 16),
+      new THREE.MeshStandardMaterial({
+        color: 0x202020,
+      })
+    );
+    sensorBump.position.set(0, 0.15, 0.3);
+    player.add(sensorBump);
+
+    // Position roomba properly on ground
     player.scale.setScalar(0.25);
+    player.position.y = 0.1 * player.scale.y;
     player.castShadow = true;
     player.receiveShadow = true;
     scene.add(player);
@@ -400,7 +420,9 @@ const Game: React.FC = () => {
       fragmentShader: auraFragmentShader,
       transparent: true,
       uniforms: {
-        time: { value: 0 },
+        time: {
+          value: 0,
+        },
       },
     });
 
@@ -424,11 +446,7 @@ const Game: React.FC = () => {
             );
             model.position.y = 0.05;
           } else {
-            model.rotation.set(
-              0,
-              obj.rotation[2] + Math.random() * Math.PI,
-              0
-            );
+            model.rotation.set(0, obj.rotation[2] + Math.random() * Math.PI, 0);
             model.position.y = 0.05;
           }
           model.scale.setScalar(obj.scale);
@@ -463,7 +481,9 @@ const Game: React.FC = () => {
             obj.size * 0.1,
             obj.size * 0.1
           );
-          const material = new THREE.MeshStandardMaterial({ color: obj.color });
+          const material = new THREE.MeshStandardMaterial({
+            color: obj.color,
+          });
           const mesh = new THREE.Mesh(geometry, material);
           mesh.position.set(...obj.position);
           mesh.rotation.set(...obj.rotation);
@@ -527,7 +547,10 @@ const Game: React.FC = () => {
       // Update time elapsed
       const currentTime = Date.now();
       const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-      setGameState(prev => ({ ...prev, timeElapsed: elapsedSeconds }));
+      setGameState((prev) => ({
+        ...prev,
+        timeElapsed: elapsedSeconds,
+      }));
 
       // Find the smallest remaining object
       const smallestObject = objects.reduce(
@@ -540,30 +563,30 @@ const Game: React.FC = () => {
           }
           return smallest;
         },
-        { userData: { size: Infinity } }
+        {
+          userData: {
+            size: Infinity,
+          },
+        }
       );
 
-      // Add logic to check if all objects in the current tier are captured
-      if (objects.length === 0 && !finished) {
-        const currentTierIndex = sizeTiers.findIndex(
-          (tier) => gameState.playerSize >= tier.min && gameState.playerSize < tier.max
-        );
-
-        if (currentTierIndex !== -1 && currentTierIndex < sizeTiers.length - 1) {
-          const nextTier = sizeTiers[currentTierIndex + 1];
-          setGameState(prev => ({
-            ...prev,
-            playerSize: nextTier.min // Move to the next tier size
-          }));
-          // Logic to load the next tier objects can be added here
-        } else {
-          console.log("Game Completed!", time, gameState, objects.length);
-          audioRef.current?.pause();
-          audioRef.current = null;
-          playRandomSound(['music/effects/01.mp3', 'music/effects/03.mp3', 'music/effects/04.mp3', 'music/effects/05.mp3']);
-          finished = true;
-          setGameOver(true);
-        }
+      // Add logic to check if all objects are captured
+      if (
+        totalObjects + objects.length === 0 &&
+        totalObjects != 0 &&
+        !finished
+      ) {
+        console.log("Game Completed!", time, gameState, objects.length);
+        audioRef.current?.pause();
+        audioRef.current = null;
+        playRandomSound([
+          "music/effects/01.mp3",
+          "music/effects/03.mp3",
+          "music/effects/04.mp3",
+          "music/effects/05.mp3",
+        ]);
+        finished = true;
+        setGameOver(true);
       }
 
       // Update aura uniforms and visibility
@@ -631,11 +654,13 @@ const Game: React.FC = () => {
       nextPosition.z = Math.max(-24, Math.min(24, nextPosition.z));
 
       // Check collisions with objects
+      // Check collisions with objects
       let collisionOccurred = false;
       objects.forEach((object, index) => {
         if (object.parent === scene) {
           const distance = nextPosition.distanceTo(object.position);
-          const combinedRadius = player.scale.x * 0.5 + object.userData.size * 0.05;
+          const combinedRadius =
+            player.scale.x * 0.5 + object.userData.size * 0.05;
 
           if (distance < combinedRadius) {
             if (
@@ -651,33 +676,46 @@ const Game: React.FC = () => {
               }
               totalObjects--;
 
-              // Generate random spherical coordinates for full sphere coverage
-              const phi = Math.random() * Math.PI * 2; // Random angle around the sphere (0 to 2π)
-              const theta = Math.acos(2 * Math.random() - 1); // Random angle from top to bottom (-1 to 1)
+              // True random sphere point distribution
+              const u = Math.random();
+              const v = Math.random();
               const radius = player.scale.x * 0.5;
 
-              // Convert spherical to Cartesian coordinates
+              const theta = 2 * Math.PI * u;
+              const phi = Math.acos(2 * v - 1);
+
               const surfacePosition = new THREE.Vector3(
-                radius * Math.sin(theta) * Math.cos(phi),
-                radius * Math.sin(theta) * Math.sin(phi),
-                radius * Math.cos(theta)
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.sin(phi) * Math.sin(theta),
+                radius * Math.cos(phi)
               );
 
-              // Add tiny random offset to prevent z-fighting
-              surfacePosition.add(new THREE.Vector3(
-                (Math.random() - 0.5) * 0.05,
-                (Math.random() - 0.5) * 0.05,
-                (Math.random() - 0.5) * 0.05
-              ).multiplyScalar(player.scale.x));
+              // Store initial position for rotation
+              object.userData.initialPosition = {
+                theta: theta,
+                phi: phi,
+                radius: radius,
+              };
 
               object.position.copy(surfacePosition);
 
-              // Scale object relative to player size with enhanced visibility
-              const scaleFactor = Math.min(1.2, object.userData.size / gameState.playerSize);
+              // Add tiny random offset to prevent z-fighting
+              surfacePosition.add(
+                new THREE.Vector3(
+                  (Math.random() - 0.5) * 0.05,
+                  (Math.random() - 0.5) * 0.05,
+                  (Math.random() - 0.5) * 0.05
+                ).multiplyScalar(player.scale.x)
+              );
+
+              // Scale object relative to player size
+              const scaleFactor = Math.min(
+                1.2,
+                object.userData.size / gameState.playerSize
+              );
               object.scale.multiplyScalar(scaleFactor * 0.8);
 
               collectedObjectsContainer.add(object);
-              object.userData.orbitOffset = Math.random() * Math.PI * 2;
 
               if (blipSoundRef.current) {
                 blipSoundRef.current.play().catch((error) => {
@@ -686,26 +724,97 @@ const Game: React.FC = () => {
               }
 
               // Update game state
-              setGameState((prev) => ({
-                ...prev,
-                collectedObjects: [
-                  ...prev.collectedObjects,
-                  {
-                    type: "object",
-                    size: object.userData.size,
-                    position: surfacePosition.toArray(),
-                    rotation: [0, 0, 0],
-                    scale: object.scale.x,
-                    model: "",
-                    color: "#ffffff",
+              setGameState((prev) => {
+                // Find the smallest remaining object in scene
+                const smallestRemaining = objects.reduce(
+                  (smallest, obj) => {
+                    if (
+                      obj.parent === scene &&
+                      obj.userData.size < smallest.userData.size
+                    ) {
+                      return obj;
+                    }
+                    return smallest;
                   },
-                ],
-              }));
+                  {
+                    userData: {
+                      size: Infinity,
+                    },
+                  }
+                );
 
-              // No growth logic here, growth will be handled based on tier completion
+                // If moving to new size class (aura switch), grow significantly
+                const movingToNewClass = !prev.collectedObjects.some(
+                  (obj) => obj.size <= smallestRemaining.userData.size
+                );
 
-              // Keep roomba on ground
-              player.position.y = 0.25;
+                const newPlayerSize = movingToNewClass
+                  ? prev.playerSize * 1.5 // Significant growth when completing a size class
+                  : prev.playerSize; // No growth otherwise
+
+                return {
+                  ...prev,
+                  playerSize: newPlayerSize,
+                  collectedObjects: [
+                    ...prev.collectedObjects,
+                    {
+                      type: "object",
+                      size: object.userData.size,
+                      position: surfacePosition.toArray(),
+                      rotation: [0, 0, 0],
+                      scale: object.scale.x,
+                      model: "",
+                      color: "#ffffff",
+                    },
+                  ],
+                };
+              });
+
+              // Keep roomba on ground after scaling
+              player.position.y = 0.1 * player.scale.y;
+
+              // Adjust player size
+              const targetScale = gameState.playerSize * 1.1;
+              player.scale.lerp(
+                new THREE.Vector3(targetScale, targetScale, targetScale),
+                0.2
+              );
+
+              // Update collected objects positions
+              collectedObjectsContainer.children.forEach(
+                (child: THREE.Object3D) => {
+                  if (child.userData.size < gameState.playerSize * 0.08) {
+                    collectedObjectsContainer.remove(child);
+                    return;
+                  }
+
+                  const initialPos = child.userData.initialPosition;
+                  const currentRadius = player.scale.x * 0.5;
+
+                  // Calculate movement-based rotation
+                  const movementAngle = Math.atan2(
+                    playerVelocity.x,
+                    playerVelocity.z
+                  );
+                  const rotationSpeed = playerVelocity.length() * 2;
+
+                  // Rotate position based on movement
+                  const rotatedTheta =
+                    initialPos.theta + movementAngle * rotationSpeed;
+
+                  child.position.set(
+                    currentRadius *
+                      Math.sin(initialPos.phi) *
+                      Math.cos(rotatedTheta),
+                    currentRadius *
+                      Math.sin(initialPos.phi) *
+                      Math.sin(rotatedTheta),
+                    currentRadius * Math.cos(initialPos.phi)
+                  );
+                }
+              );
+
+              cameraOffset.z = Math.max(2.5, player.scale.x * 3);
             } else {
               // Bounce off larger objects
               collisionOccurred = true;
@@ -715,7 +824,7 @@ const Game: React.FC = () => {
                 .normalize();
               playerVelocity.reflect(pushDirection).multiplyScalar(bounceForce);
 
-              // Add some "squish" effect to the player
+              // Add squish effect to the player
               player.scale.x *= 0.95;
               player.scale.z *= 1.05;
               setTimeout(() => {
@@ -726,6 +835,7 @@ const Game: React.FC = () => {
           }
         }
       });
+      // END
 
       // Update player position if no collision occurred
       if (!collisionOccurred) {
@@ -738,9 +848,7 @@ const Game: React.FC = () => {
       player.position.y = Math.max(player.scale.y * 0.5, player.position.y);
 
       // Rotate collected objects container
-      collectedObjectsContainer.rotation.x = 0;  // Disable rotation
-      collectedObjectsContainer.rotation.y = 0;  // Disable rotation
-      collectedObjectsContainer.rotation.z = 0;  // Disable rotation
+      // collectedObjectsContainer.rotation.x += 0.05;
 
       // Update camera zoom based on player size
       const targetZoom = THREE.MathUtils.clamp(
@@ -765,7 +873,9 @@ const Game: React.FC = () => {
     };
 
     // Keyboard controls
-    const keys: { [key: string]: boolean } = {};
+    const keys: {
+      [key: string]: boolean;
+    } = {};
     const onKeyDown = (event: KeyboardEvent) => {
       keys[event.code] = true;
       if (event.code === "Space") {
@@ -800,27 +910,33 @@ const Game: React.FC = () => {
 
   return (
     <>
-      <div ref={mountRef} />
-      <SizeIndicator size={gameState.playerSize} time={gameState.timeElapsed} />
-      <audio ref={audioRef} />
-      <audio ref={blipSoundRef} />
+      <div ref={mountRef} />{" "}
+      <SizeIndicator size={gameState.playerSize} time={gameState.timeElapsed} />{" "}
+      <audio ref={audioRef} /> <audio ref={blipSoundRef} />{" "}
       {gameOver && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-white p-8 rounded-lg text-center">
-            <h2 className="text-3xl font-bold mb-4">Congratulations!</h2>
-            <p className="text-xl mb-2">You've captured all the objects!</p>
+            <h2 className="text-3xl font-bold mb-4"> Congratulations! </h2>{" "}
+            <p className="text-xl mb-2"> You 've captured all the objects!</p>{" "}
             <p className="text-lg">
-              Final size: {Math.floor(gameState.playerSize)}cm {Math.floor((gameState.playerSize % 1) * 10)}mm
-            </p>
+              Final size: {Math.floor(gameState.playerSize)}
+              cm {Math.floor((gameState.playerSize % 1) * 10)}
+              mm{" "}
+            </p>{" "}
             <p className="text-lg">
-              Time: {Math.floor(gameState.timeElapsed / 60)}m {gameState.timeElapsed % 60}s
-            </p>
-            <br/>
-            <button type="button" onClick={ refreshPage }><span>Play Again</span></button><br/>
-            <img src="https://i.imgur.com/n1lfojs.gif"/>
-          </div>
+              Time: {Math.floor(gameState.timeElapsed / 60)}m{" "}
+              {gameState.timeElapsed % 60}s{" "}
+            </p>{" "}
+            <br />
+            <button type="button" onClick={refreshPage}>
+              {" "}
+              <span> Play Again </span>
+            </button>{" "}
+            <br />
+            <img src="https://i.imgur.com/n1lfojs.gif" />
+          </div>{" "}
         </div>
-      )}
+      )}{" "}
     </>
   );
 };
