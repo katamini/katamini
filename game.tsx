@@ -725,65 +725,72 @@ const Game: React.FC = () => {
                 });
               }
 
-              // Update game state
-                setGameState((prev) => {
-                  // Find the smallest remaining object in the scene
-                  const smallestRemaining = objects.reduce(
-                    (smallest, obj) => {
-                      if (
-                        obj.parent === scene &&
-                        obj.userData.size < smallest.userData.size
-                      ) {
-                        return obj;
-                      }
-                      return smallest;
-                    },
-                    {
-                      userData: {
-                        size: Infinity,
-                      },
+              // Update game state with new growth logic and add debug logs
+              setGameState((prev) => {
+                // Find the smallest remaining object in the scene
+                const smallestRemaining = objects.reduce(
+                  (smallest, obj) => {
+                    if (
+                      obj.parent === scene &&
+                      obj.userData.size < smallest.userData.size
+                    ) {
+                      return obj;
                     }
-                  );
-
-                  // New growth logic based on the current object class
-                  let newPlayerSize = prev.playerSize;
-                  let newClass = prev.currentClass;
-                  const currentClass = sizeTiers[prev.currentClass];
-                  const objectsInClass = prev.collectedObjects.filter(
-                    (obj) =>
-                      obj.size >= currentClass.min &&
-                      obj.size <= currentClass.max
-                  );
-
-                  const allObjectsInClassCaptured =
-                    objectsInClass.length + 1 >= currentClass.requiredCount;
-
-                  if (
-                    allObjectsInClassCaptured &&
-                    prev.currentClass < sizeTiers.length - 1
-                  ) {
-                    newPlayerSize += currentClass.growthRate;
-                    newClass += 1; // Move to the next class
+                    return smallest;
+                  },
+                  {
+                    userData: {
+                      size: Infinity,
+                    },
                   }
-
-                  return {
-                    ...prev,
-                    playerSize: newPlayerSize,
-                    currentClass: newClass,
-                    collectedObjects: [
-                      ...prev.collectedObjects,
-                      {
-                        type: "object",
-                        size: object.userData.size,
-                        position: surfacePosition.toArray(),
-                        rotation: [0, 0, 0],
-                        scale: object.scale.x,
-                        model: "",
-                        color: "#ffffff",
-                      },
-                    ],
-                  };
-                });
+                );
+              
+                // New growth logic based on the current object class
+                let newPlayerSize = prev.playerSize;
+                let newClass = prev.currentClass;
+                const currentClass = sizeTiers[prev.currentClass];
+                const objectsInClass = prev.collectedObjects.filter(
+                  (obj) =>
+                    obj.size >= currentClass.min &&
+                    obj.size <= currentClass.max
+                );
+              
+                const allObjectsInClassCaptured =
+                  objectsInClass.length + 1 >= currentClass.requiredCount;
+              
+                console.log("Current Class:", prev.currentClass);
+                console.log("Player Size:", prev.playerSize);
+                console.log("Objects in Current Class:", objectsInClass.length);
+                console.log("All Objects in Class Captured:", allObjectsInClassCaptured);
+              
+                if (
+                  allObjectsInClassCaptured &&
+                  prev.currentClass < sizeTiers.length - 1
+                ) {
+                  newPlayerSize += currentClass.growthRate;
+                  newClass += 1; // Move to the next class
+                  console.log("New Player Size:", newPlayerSize);
+                  console.log("New Class:", newClass);
+                }
+              
+                return {
+                  ...prev,
+                  playerSize: newPlayerSize,
+                  currentClass: newClass,
+                  collectedObjects: [
+                    ...prev.collectedObjects,
+                    {
+                      type: "object",
+                      size: object.userData.size,
+                      position: surfacePosition.toArray(),
+                      rotation: [0, 0, 0],
+                      scale: object.scale.x,
+                      model: "",
+                      color: "#ffffff",
+                    },
+                  ],
+                };
+              });
 
                 // Keep roomba on the ground after scaling
                 player.position.y = 0.1 * player.scale.y;
