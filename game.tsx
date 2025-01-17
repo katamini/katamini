@@ -229,7 +229,7 @@ const Game: React.FC = () => {
   const playRandomSound = (sounds: string[]) => {
     const randomIndex = Math.floor(Math.random() * sounds.length);
     const sound = new Audio(sounds[randomIndex]);
-    sound.volume = 0.4;
+    sound.volume = 0.3;
     sound.play().catch((error) => {
       console.log("Failed to play random sound:", error);
     });
@@ -737,7 +737,8 @@ const Game: React.FC = () => {
 
                 if (allObjectsInClassCaptured && prev.currentClass < sizeTiers.length - 1) {
                   newClass += 1; // Move to the next class
-                  newPlayerSize = 0.5 * (newClass + 1); // New size based on the current class multiplier
+                  newPlayerSize = 0.5 * (newClass * 1.5); // New size based on the current class multiplier
+		  console.log('roomba upgraded', newPlayerSize, currentClass.growthRate);
 
                   // Play a growth sound effect when size increases
                   playRandomSound([
