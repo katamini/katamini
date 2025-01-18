@@ -1028,8 +1028,8 @@ const Game: React.FC = () => {
       {gameOver && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-white p-8 rounded-lg text-center">
-            <h2 className="text-3xl font-bold mb-4">Congratulations!</h2>
-            <p className="text-xl mb-2">You've captured all the objects!</p>
+            <h1 className="text-3xl font-bold mb-4 rainbow_text_animated"><b>Congratulations!</b></h1>
+            <p className="text-xl mb-2">You vacuumed all the objects!</p>
             <p className="text-lg">
               Final size: {Math.floor(gameState.playerSize)} cm{" "}
               {Math.floor((gameState.playerSize % 1) * 10)} mm
@@ -1040,7 +1040,7 @@ const Game: React.FC = () => {
             </p>
             <br />
             <button type="button" onClick={refreshPage}>
-              <span>Play Again</span>
+              <span className="rainbow rainbow_text_animated text-lg">PLAY AGAIN</span>
             </button>
             <br />
             <img src="https://i.imgur.com/n1lfojs.gif" />
