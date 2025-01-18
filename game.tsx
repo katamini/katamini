@@ -678,19 +678,16 @@ const Game: React.FC = () => {
     let time = 0;
     const animate = () => {
       if (finished) return;
-
-      requestAnimationFrame(animate);
       time += 0.016;
 
       // Update time elapsed
       if (!finished) {
         const currentTime = Date.now();
         const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-        setGameState((prev) => ({
-          ...prev,
-          timeElapsed: elapsedSeconds,
-        }));
+        setGameState(prev => ({ ...prev, timeElapsed: elapsedSeconds }));
       }
+
+      requestAnimationFrame(animate);
 
       // Find the smallest remaining object
       const smallestObject = objects.reduce(
