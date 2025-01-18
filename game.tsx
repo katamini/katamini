@@ -491,10 +491,18 @@ const Game: React.FC = () => {
     scene.add(hemisphereLight);
 
     // Room setup
+    const wallTexture = new THREE.TextureLoader().load("textures/wall_shoji.png");
+    wallTexture.wrapS = THREE.RepeatWrapping;
+    wallTexture.wrapT = THREE.RepeatWrapping;
+    wallTexture.repeat.set(20, 8); // Adjust these values to change the pattern scale
+    
     const roomGeometry = new THREE.BoxGeometry(50, 20, 50);
     const roomMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffecb3,
+      map: wallTexture,
+      color: 0xffffff, // Using white to let the texture show properly
       side: THREE.BackSide,
+      roughness: 0.8,
+      metalness: 0.0,
     });
     const room = new THREE.Mesh(roomGeometry, roomMaterial);
     room.position.y = 10;
