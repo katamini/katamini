@@ -481,9 +481,9 @@ const Game: React.FC = () => {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2500;
-    directionalLight.shadow.mapSize.height = 2500;
-    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.mapSize.width = 1200;
+    directionalLight.shadow.mapSize.height = 1200;
+    directionalLight.shadow.camera.near = 0.6;
     directionalLight.shadow.camera.far = 50;
     scene.add(directionalLight);
 
@@ -494,7 +494,7 @@ const Game: React.FC = () => {
     const wallTexture = new THREE.TextureLoader().load("textures/wall_shoji.png");
     wallTexture.wrapS = THREE.RepeatWrapping;
     wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(20, 8); // Adjust these values to change the pattern scale
+    wallTexture.repeat.set(5, 2); // Adjust these values to change the pattern scale
     
     const roomGeometry = new THREE.BoxGeometry(50, 20, 50);
     const roomMaterial = new THREE.MeshStandardMaterial({
@@ -512,7 +512,7 @@ const Game: React.FC = () => {
     const floorTexture = new THREE.TextureLoader().load("textures/floor_carpet.jpg");
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(50, 50);
+    floorTexture.repeat.set(20, 20);
 
     const floorMaterial = new THREE.MeshStandardMaterial({
       map: floorTexture,
