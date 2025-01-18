@@ -683,12 +683,14 @@ const Game: React.FC = () => {
       time += 0.016;
 
       // Update time elapsed
-      const currentTime = Date.now();
-      const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-      setGameState((prev) => ({
-        ...prev,
-        timeElapsed: elapsedSeconds,
-      }));
+      if (!finished) {
+        const currentTime = Date.now();
+        const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+        setGameState((prev) => ({
+          ...prev,
+          timeElapsed: elapsedSeconds,
+        }));
+      }
 
       // Find the smallest remaining object
       const smallestObject = objects.reduce(
@@ -704,6 +706,7 @@ const Game: React.FC = () => {
       // Check if all objects are captured
       if (totalObjects + objects.length === 0 && totalObjects != 0 && !finished) {
         console.log("Game Completed!", time, gameState, objects.length);
+	finished = true;
         audioRef.current?.pause();
         audioRef.current = null;
         playRandomSound([
