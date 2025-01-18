@@ -751,7 +751,7 @@ const Game: React.FC = () => {
       // Apply friction and limit speed
       playerVelocity.multiplyScalar(friction);
       let dynamicMaxSpeed = maxSpeed * (1 + gameState.playerSize * 0.2);
-      if (isMobile) { dynamicMaxSpeed = dynamicMaxSpeed * 2; }
+      if (isMobileDevice) { dynamicMaxSpeed = dynamicMaxSpeed * 2; }
       if (playerVelocity.length() > dynamicMaxSpeed) {
         playerVelocity.normalize().multiplyScalar(dynamicMaxSpeed);
       }
