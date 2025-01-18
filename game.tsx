@@ -461,7 +461,17 @@ const Game: React.FC = () => {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+	  
+    // Set the size of the renderer to the window size
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+    // Adjust the pixel ratio to lower the resolution on mobile
+    if (isMobileDevice) {
+      renderer.setPixelRatio(window.devicePixelRatio / 2); // Adjust this value as needed
+    } else {
+      renderer.setPixelRatio(window.devicePixelRatio);
+    }
+	  
     renderer.shadowMap.enabled = true;
     mountRef.current.appendChild(renderer.domElement);
 
@@ -946,7 +956,14 @@ const Game: React.FC = () => {
     const onWindowResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      // Set the size of the renderer to the window size
+      renderer.setSize(window.innerWidth, window.innerHeight, false);
+      // Adjust the pixel ratio to lower the resolution on mobile
+      if (isMobileDevice) {
+        renderer.setPixelRatio(window.devicePixelRatio / 2); // Adjust this value as needed
+      } else {
+        renderer.setPixelRatio(window.devicePixelRatio);
+      }
     };
     window.addEventListener("resize", onWindowResize);
 
