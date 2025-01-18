@@ -154,7 +154,7 @@ const gameObjects: GameObject[] = [
     color: "#5D4037",
     sound: "music/blips/03.mp3",
   },
-  // { type: 'desk', size: 25, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
+  { type: 'desk', size: 25, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
 ];
 
 const sizeTiers = [
@@ -195,7 +195,7 @@ const distributeObjects = (objects: GameObject[]): GameObject[] => {
   const distributed: GameObject[] = [];
   objects.forEach((obj) => {
     const count =
-      obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 6 : 2;
+      obj.size < 5 ? 20 : obj.size < 10 ? 12 : obj.size < 20 ? 4 : 2;
     for (let i = 0; i < count; i++) {
       const distance = Math.pow(obj.size, 1.05) * 0.6;
       const angle = Math.random() * Math.PI * 2;
