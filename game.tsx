@@ -118,7 +118,7 @@ const gameObjects: GameObject[] = [
     model: "models/flowerpot.glb",
     position: [-5, 0, 5],
     rotation: [0, 0, 0],
-    scale: 0.4,
+    scale: 0.3,
     color: "#9C27B0",
     sound: "music/blips/10.mp3",
   },
@@ -138,7 +138,7 @@ const gameObjects: GameObject[] = [
     model: "models/trashcan.glb",
     position: [-6, 0, -6],
     rotation: [0, 0, 0],
-    scale: 1,
+    scale: 1.1,
     color: "#795548",
     sound: "music/blips/02.mp3",
   },
@@ -215,6 +215,7 @@ const Game: React.FC = () => {
   const blipSoundRef = useRef<HTMLAudioElement | null>(null);
   const playerRef = useRef<THREE.Mesh | null>(null);
   const collectedObjectsRef = useRef<THREE.Group | null>(null);
+  const finishedRef = useRef(false);
 
   const touchRef = useRef({
     startX: 0,
@@ -494,7 +495,7 @@ const Game: React.FC = () => {
     const wallTexture = new THREE.TextureLoader().load("textures/wall_shoji.png");
     wallTexture.wrapS = THREE.RepeatWrapping;
     wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(5, 2); // Adjust these values to change the pattern scale
+    wallTexture.repeat.set(2.5, 1); // Adjust these values to change the pattern scale
     
     const roomGeometry = new THREE.BoxGeometry(50, 20, 50);
     const roomMaterial = new THREE.MeshStandardMaterial({
@@ -671,23 +672,43 @@ const Game: React.FC = () => {
     camera.position.copy(player.position).add(cameraOffset);
     camera.lookAt(player.position);
 
-    let finished = false;
     let startTime = Date.now();
 
     // Game loop
     let time = 0;
     const animate = () => {
-      if (finished) return;
+	    
       time += 0.016;
 
+      if (finishedRef.current) {
+	console.log('game over!');
+	return;
+      } else {
+        requestAnimationFrame(animate);
+      }
+	    
       // Update time elapsed
-      if (!finished) {
+      if (!finishedRef.current) {
         const currentTime = Date.now();
         const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
         setGameState(prev => ({ ...prev, timeElapsed: elapsedSeconds }));
       }
 
-      requestAnimationFrame(animate);
+      // Check if all objects are captured
+      if (totalObjects + objects.length === 0 && totalObjects != 0 && !finishedRef.current) {
+        console.log("Game Completed!", time, gameState, objects.length);
+        finishedRef.current = true;
+        audioRef.current?.pause();
+        audioRef.current = null;
+        playRandomSound([
+          "music/effects/01.mp3",
+          "music/effects/03.mp3",
+          "music/effects/04.mp3",
+          "music/effects/05.mp3",
+        ]);
+        setGameOver(true);
+        return;
+      }
 
       // Find the smallest remaining object
       const smallestObject = objects.reduce(
@@ -699,22 +720,6 @@ const Game: React.FC = () => {
         },
         { userData: { size: Infinity } }
       );
-
-      // Check if all objects are captured
-      if (totalObjects + objects.length === 0 && totalObjects != 0 && !finished) {
-        console.log("Game Completed!", time, gameState, objects.length);
-	finished = true;
-        audioRef.current?.pause();
-        audioRef.current = null;
-        playRandomSound([
-          "music/effects/01.mp3",
-          "music/effects/03.mp3",
-          "music/effects/04.mp3",
-          "music/effects/05.mp3",
-        ]);
-        finished = true;
-        setGameOver(true);
-      }
 
       // Update aura uniforms and visibility
       objects.forEach((object, index) => {
@@ -741,9 +746,12 @@ const Game: React.FC = () => {
         playerDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), -rotationSpeed);
       }
 
+      let dynamicMaxSpeed = maxSpeed * (1 + gameState.playerSize * 0.6);  // Increased scaling factor
+      const dynamicAcceleration = acceleration * (1 + gameState.playerSize * 0.4);  // Add dynamic acceleration
       playerVelocity.add(
-        playerDirection.clone().multiplyScalar(moveDirection.z * acceleration)
+        playerDirection.clone().multiplyScalar(moveDirection.z * dynamicAcceleration)
       );
+
       playerVelocity.y -= gravity;
 
       isGrounded = player.position.y <= player.scale.y * 0.5;
@@ -758,7 +766,7 @@ const Game: React.FC = () => {
 
       // Apply friction and limit speed
       playerVelocity.multiplyScalar(friction);
-      let dynamicMaxSpeed = maxSpeed * (1 + gameState.playerSize * 0.2);
+	    
       if (isMobileDevice) { dynamicMaxSpeed = dynamicMaxSpeed * 2; }
       if (playerVelocity.length() > dynamicMaxSpeed) {
         playerVelocity.normalize().multiplyScalar(dynamicMaxSpeed);
@@ -977,7 +985,7 @@ const Game: React.FC = () => {
     window.addEventListener("resize", onWindowResize);
 
     // Start animation
-    animate();
+    if (!finishedRef.current) animate();
 
     // Cleanup
     return () => {
