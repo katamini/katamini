@@ -463,7 +463,7 @@ const Game: React.FC = () => {
     });
 	  
     // Set the size of the renderer to the window size
-    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
     // Adjust the pixel ratio to lower the resolution on mobile
     if (isMobileDevice) {
@@ -750,7 +750,8 @@ const Game: React.FC = () => {
 
       // Apply friction and limit speed
       playerVelocity.multiplyScalar(friction);
-      const dynamicMaxSpeed = maxSpeed * (1 + gameState.playerSize * 0.2);
+      let dynamicMaxSpeed = maxSpeed * (1 + gameState.playerSize * 0.2);
+      if (isMobile) { dynamicMaxSpeed = dynamicMaxSpeed * 2; }
       if (playerVelocity.length() > dynamicMaxSpeed) {
         playerVelocity.normalize().multiplyScalar(dynamicMaxSpeed);
       }
@@ -957,7 +958,7 @@ const Game: React.FC = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       // Set the size of the renderer to the window size
-      renderer.setSize(window.innerWidth, window.innerHeight, false);
+      renderer.setSize(window.innerWidth, window.innerHeight);
       // Adjust the pixel ratio to lower the resolution on mobile
       if (isMobileDevice) {
         renderer.setPixelRatio(window.devicePixelRatio / 2); // Adjust this value as needed
