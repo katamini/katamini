@@ -230,10 +230,10 @@ const Game: React.FC = () => {
 
 	  const handleVisibilityChange = () => {
 	    if (document.visibilityState === "visible" && userInteracted) {
-		console.log('switch: resume playback');
+	      console.log('switch: resume playback');
 	      playAudio();
 	    } else {
-		console.log('switch: pause playback');
+	      console.log('switch: pause playback');
 	      stopAudio();
 	    }
 	  };
@@ -411,6 +411,9 @@ const Game: React.FC = () => {
             if ((child as THREE.Mesh).isMesh) {
               (child as THREE.Mesh).castShadow = true;
               (child as THREE.Mesh).receiveShadow = true;
+	      if (obj.color){ 
+		(child as THREE.Mesh).material.color.set(obj.color) 
+              }
             }
           });
           scene.add(model);
@@ -443,6 +446,9 @@ const Game: React.FC = () => {
           mesh.receiveShadow = true;
           mesh.userData.size = obj.size;
           mesh.position.y = obj.size * 0.005;
+          if (obj.color) {
+            mesh.material.color.set(obj.color);
+          }
           scene.add(mesh);
           objects.push(mesh);
 

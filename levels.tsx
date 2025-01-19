@@ -14,6 +14,34 @@ export interface LevelConfig {
   wallTexture?: string;
 }
 
+const katamariPalette = [
+  "#87CEEB", // Sky Blue
+  "#FFD700", // Gold
+  "#FF69B4", // Hot Pink
+  "#8A2BE2", // Blue Violet
+  "#FF4500", // Orange Red
+  "#7FFF00", // Chartreuse
+  "#00CED1", // Dark Turquoise
+  "#FF6347", // Tomato
+  "#40E0D0", // Turquoise
+  "#DA70D6", // Orchid
+  "#87CEEB", // Sky Blue
+  "#FFD700", // Gold
+  "#FF69B4", // Hot Pink
+  "#8A2BE2", // Blue Violet
+  "#FF4500", // Orange Red
+  "#7FFF00", // Chartreuse
+  "#00CED1", // Dark Turquoise
+  "#FF6347", // Tomato
+  "#40E0D0", // Turquoise
+  "#DA70D6", // Orchid
+];
+
+function getRandomKatamariColor() {
+  const randomIndex = Math.floor(Math.random() * katamariPalette.length);
+  return katamariPalette[randomIndex];
+}
+
 const createLevel1Objects = (): GameObject[] => [
 // Tier 1 (0-2cm)
   {
@@ -33,7 +61,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [-1, 0, 2],
     rotation: [0, 0, 0],
     scale: 1,
-    color: "#F48FB1",
+//    color: "#F48FB1",
     round: true,
     sound: "music/blips/02.mp3",
   },
@@ -44,7 +72,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [2, 0, -1],
     rotation: [0, 0, 0],
     scale: 0.3,
-    color: "#FFD700",
+//    color: "#FFD700",
     round: true,
     sound: "music/blips/03.mp3",
   },
@@ -57,7 +85,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [-2, 0, -2],
     rotation: [0, 0, 0],
     scale: 0.5,
-    color: "#4CAF50",
+ // color: "#4CAF50",
     round: true,
     sound: "music/blips/04.mp3",
   },
@@ -68,7 +96,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [3, 0, 3],
     rotation: [0, 0, 0],
     scale: 0.2,
-    color: "#9E9E9E",
+ //   color: "#9E9E9E",
     round: false,
     sound: "music/blips/05.mp3",
   },
@@ -79,7 +107,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [-3, 0, 1],
     rotation: [0, 0, 0],
     scale: 0.7,
-    color: "#2196F3",
+ //   color: "#2196F3",
     round: true,
     sound: "music/blips/06.mp3",
   },
@@ -92,7 +120,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [-4, 0, -4],
     rotation: [0, 0, 0],
     scale: 0.25,
-    color: "#795548",
+ //   color: "#795548",
     sound: "music/blips/08.mp3",
   },
   {
@@ -102,7 +130,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [4, 0, -3],
     rotation: [0, 0, 0],
     scale: 0.5,
-    color: "#FF5722",
+ //   color: "#FF5722",
     sound: "music/blips/07.mp3",
   },
   {
@@ -112,7 +140,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [5, 0, 2],
     rotation: [0, 0, 0],
     scale: 0.5,
-    color: "#E0E0E0",
+ //   color: "#E0E0E0",
     sound: "music/blips/09.mp3",
   },
 
@@ -124,7 +152,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [-5, 0, 5],
     rotation: [0, 0, 0],
     scale: 0.3,
-    color: "#9C27B0",
+ //   color: "#9C27B0",
     sound: "music/blips/10.mp3",
   },
   {
@@ -134,7 +162,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [6, 0, -5],
     rotation: [0, 0, 0],
     scale: 0.06,
-    color: "#8D6E63",
+ //   color: "#8D6E63",
     sound: "music/blips/01.mp3",
   },
   {
@@ -144,7 +172,7 @@ const createLevel1Objects = (): GameObject[] => [
     position: [-6, 0, -6],
     rotation: [0, 0, 0],
     scale: 1.1,
-    color: "#795548",
+ //   color: "#795548",
     sound: "music/blips/02.mp3",
   },
 
@@ -156,10 +184,10 @@ const createLevel1Objects = (): GameObject[] => [
     position: [7, 0, 7],
     rotation: [0, 0, 0],
     scale: 0.1,
-    color: "#5D4037",
+ //   color: "#5D4037",
     sound: "music/blips/03.mp3",
   },
-  { type: 'desk', size: 25, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, color: '#3E2723', sound: 'music/blips/04.mp3' },
+  { type: 'desk', size: 25, model: 'models/piano.glb', position: [-7, 0, -7], rotation: [0, 0, 0], scale: 0.1, sound: 'music/blips/04.mp3' },
 ];
 
 const createLevel2Objects = (): GameObject[] => [
@@ -186,7 +214,7 @@ const createLevel3Objects = (): GameObject[] => [
     position: [1, 0, 0],
     rotation: [0, 0, 0],
     scale: 0.1,
-    color: "#87CEEB",
+    color: getRandomKatamariColor(),
     sound: "music/blips/01.mp3",
   },
   {
@@ -196,7 +224,7 @@ const createLevel3Objects = (): GameObject[] => [
     position: [1, 0, 0],
     rotation: [0, 0, 0],
     scale: 0.2,
-    color: "#87CEEB",
+    color: getRandomKatamariColor(),
     sound: "music/blips/01.mp3",
   },
   {
@@ -206,7 +234,7 @@ const createLevel3Objects = (): GameObject[] => [
     position: [1, 0, 0],
     rotation: [0, 0, 0],
     scale: 0.3,
-    color: "#87CEEB",
+    color: getRandomKatamariColor(),
     sound: "music/blips/01.mp3",
   },
   {
@@ -216,7 +244,7 @@ const createLevel3Objects = (): GameObject[] => [
     position: [1, 0, 0],
     rotation: [0, 0, 0],
     scale: 0.4,
-    color: "#87CEEB",
+    color: getRandomKatamariColor(),
     sound: "music/blips/01.mp3",
   },
   // Add more level 3 specific objects
@@ -289,7 +317,7 @@ export const levels: LevelConfig[] = [
     id: "level3",
     name: "Gold Rush",
     zoom: 0.1,
-    roomSize: 10,
+    roomSize: 6,
     maxTime: 10, // 10 seconds
     description: "Clean up after an outdoor garden party!",
     gameObjects: createLevel3Objects(),
