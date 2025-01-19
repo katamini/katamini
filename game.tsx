@@ -297,29 +297,65 @@ const Game: React.FC = () => {
     scene.add(hemisphereLight);
 
     // Room setup
-    const wallTexture = new THREE.TextureLoader().load(currentLevel?.wallTexture || "textures/wall_shoji.png");
-    wallTexture.wrapS = THREE.RepeatWrapping;
-    wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(2.5, 1); // Adjust these values to change the pattern scale
+    let wallTexture;
 
-    const roomSize = currentLevel.roomSize || 50;
-    const roomGeometry = new THREE.BoxGeometry(roomSize, 20, roomSize);
-    const roomMaterial = new THREE.MeshStandardMaterial({
-      map: wallTexture,
-      // color: 0xffffff, // Using white to let the texture show properly
-      side: THREE.BackSide,
-      roughness: 0.8,
-      metalness: 0.0,
-    });
-    const room = new THREE.Mesh(roomGeometry, roomMaterial);
-    room.position.y = 10;
-    scene.add(room);
+        let wallRepeat = [2.5, 1];
+        if (currentLevel.wallRepeat) {
+              wallRepeat = [currentLevel.wallRepeat[0], currentLevel.wallRepeat[1]];
+        }
+
+	if (currentLevel?.wallTexture) {
+	  const extension = currentLevel.wallTexture.split('.').pop()?.toLowerCase();
+
+	  if (extension === 'mp4') {
+	    const video = document.createElement('video');
+	    video.src = currentLevel.wallTexture;
+	    video.loop = true;
+	    video.muted = true;
+	    video.play();
+
+	    wallTexture = new THREE.VideoTexture(video);
+	    wallTexture.wrapS = THREE.RepeatWrapping;
+	    wallTexture.wrapT = THREE.RepeatWrapping;
+            wallTexture.repeat.set(wallRepeat[0], wallRepeat[1]);
+
+	  } else {
+	    wallTexture = new THREE.TextureLoader().load(currentLevel.wallTexture);
+	    wallTexture.wrapS = THREE.RepeatWrapping;
+	    wallTexture.wrapT = THREE.RepeatWrapping;
+            wallTexture.repeat.set(wallRepeat[0], wallRepeat[1]);
+
+	  }
+	} else {
+	  wallTexture = new THREE.TextureLoader().load("textures/wall_shoji.png");
+	  wallTexture.wrapS = THREE.RepeatWrapping;
+	  wallTexture.wrapT = THREE.RepeatWrapping;
+          wallTexture.repeat.set(wallRepeat[0], wallRepeat[1]);
+	}
+
+	const roomSize = currentLevel.roomSize || 50;
+	const roomGeometry = new THREE.BoxGeometry(roomSize, 20, roomSize);
+	const roomMaterial = new THREE.MeshStandardMaterial({
+	  map: wallTexture,
+	  side: THREE.BackSide,
+	  roughness: 0.8,
+	  metalness: 0.0,
+	});
+     const room = new THREE.Mesh(roomGeometry, roomMaterial);
+     room.position.y = 10;
+     scene.add(room);
+
 
     // Floor setup
     const floorTexture = new THREE.TextureLoader().load(currentLevel.floorTexture || "textures/floor_carpet.jpg");
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(20, 20);
+
+    if (currentLevel.floorRepeat) {
+      floorTexture.repeat.set(currentLevel.floorRepeat[0], currentLevel.floorRepeat[1]);
+    } else {
+      floorTexture.repeat.set(20, 20); // Default repeat values
+    }
 
     const floorMaterial = new THREE.MeshStandardMaterial({
       map: floorTexture,

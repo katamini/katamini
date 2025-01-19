@@ -316,10 +316,12 @@ export const levels: LevelConfig[] = [
   {
     id: "level3",
     name: "Gold Rush",
-    minZoom: 0.5,
-    maxZoom: 5,
-    zoom: 0.5,
+    minZoom: 1,
+    maxZoom: 10,
+    zoom: 1,
     roomSize: 6,
+    floorRepeat: [5,5],
+    wallRepeat: [10,20],
     maxTime: 10, // 10 seconds
     description: "Clean up after an outdoor garden party!",
     gameObjects: createLevel3Objects(),
@@ -331,8 +333,8 @@ export const levels: LevelConfig[] = [
     requiredScore: 200,
     backgroundMusic: ["music/katamini_01.mp3", "music/katamini_04.mp3"],
     ambientColor: "#88CCFF", // Outdoor lighting
-    wallTexture: "textures/wall_stars.png",
-    floorTexture: "textures/floor_carpet.jpg",
+    wallTexture: "textures/wall_stars.mp4",
+    floorTexture: "textures/floor_dirt.png",
   }
 ];
 
