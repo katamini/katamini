@@ -580,8 +580,9 @@ const Game: React.FC = () => {
 
     // Calculate next position
     const nextPosition = player.position.clone().add(playerVelocity);
-    nextPosition.x = Math.max(-24, Math.min(24, nextPosition.x));
-    nextPosition.z = Math.max(-24, Math.min(24, nextPosition.z));
+    const halfRoomSize = (roomSize / 2) - 0.15; // Room size minus bits
+    nextPosition.x = Math.max(-halfRoomSize, Math.min(halfRoomSize, nextPosition.x));
+    nextPosition.z = Math.max(-halfRoomSize, Math.min(halfRoomSize, nextPosition.z));
 
     // Check collisions with objects
     let collisionOccurred = false;
