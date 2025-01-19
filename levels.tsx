@@ -331,7 +331,7 @@ export const levels: LevelConfig[] = [
     requiredScore: 200,
     backgroundMusic: ["music/katamini_01.mp3", "music/katamini_04.mp3"],
     ambientColor: "#88CCFF", // Outdoor lighting
-    wallTexture: "textures/wall_stars.gif",
+    wallTexture: "textures/wall_stars.png",
     floorTexture: "textures/floor_carpet.jpg",
   }
 ];
