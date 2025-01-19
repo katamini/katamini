@@ -306,7 +306,7 @@ const Game: React.FC = () => {
     const roomGeometry = new THREE.BoxGeometry(roomSize, 20, roomSize);
     const roomMaterial = new THREE.MeshStandardMaterial({
       map: wallTexture,
-      color: 0xffffff, // Using white to let the texture show properly
+      // color: 0xffffff, // Using white to let the texture show properly
       side: THREE.BackSide,
       roughness: 0.8,
       metalness: 0.0,
@@ -685,7 +685,7 @@ const Game: React.FC = () => {
                     rotation: [0, 0, 0],
                     scale: object.scale.x,
                     model: "",
-                    color: "#ffffff",
+                    color: "#000",
                   },
                 ],
               };

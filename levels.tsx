@@ -316,21 +316,22 @@ export const levels: LevelConfig[] = [
   {
     id: "level3",
     name: "Gold Rush",
-    zoom: 0.1,
+    minZoom: 0.5,
+    maxZoom: 5,
+    zoom: 0.5,
     roomSize: 6,
     maxTime: 10, // 10 seconds
     description: "Clean up after an outdoor garden party!",
     gameObjects: createLevel3Objects(),
     sizeTiers: [
-      { min: 0, max: 4, growthRate: 0.7, requiredCount: 15 },
-      { min: 4, max: 9, growthRate: 1.0, requiredCount: 12 },
-      { min: 9, max: 20, growthRate: 1.5, requiredCount: 8 },
-      { min: 20, max: 35, growthRate: 3.0, requiredCount: 3 }
+      { min: 0, max: 1, growthRate: 1.0, requiredCount: 10 },
+      { min: 2, max: 3, growthRate: 2.0, requiredCount: 10 },
+      { min: 3, max: 4, growthRate: 3.0, requiredCount: 5 },
     ],
     requiredScore: 200,
     backgroundMusic: ["music/katamini_01.mp3", "music/katamini_04.mp3"],
     ambientColor: "#88CCFF", // Outdoor lighting
-    wallTexture: "textures/wall_stars.png",
+    wallTexture: "textures/wall_stars.gif",
     floorTexture: "textures/floor_carpet.jpg",
   }
 ];
