@@ -140,6 +140,8 @@ const Game: React.FC = () => {
         event.preventDefault();
       }
        if (event.code === "Escape") {
+	finishedRef.current = true;
+        setGameOver(true);
         setCurrentLevelId(null); // Exit to menu
       }
     };
