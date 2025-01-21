@@ -1,5 +1,5 @@
 <a href="https://katamini.club" target="_blank">
-  <img src="https://github.com/user-attachments/assets/b07839ee-57c9-4474-853a-d6841f2bc148" width=300 />
+  <img src="https://github.com/user-attachments/assets/b07839ee-57c9-4474-853a-d6841f2bc148" width=350 />
 </a>
 <a href="https://katamini.club/" target="_blank">
   <img src="https://github.com/user-attachments/assets/1f445820-77b1-4d44-bfc2-5bd09400299a" width=140 />
