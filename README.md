@@ -19,7 +19,18 @@
   <img src="https://github.com/user-attachments/assets/c5fe2ad9-bfee-4e3e-b283-8768a11c2f6a" width=600 />
 </a>
 
-
+> [!NOTE]
+> The game is developed in the spare time. This is the current status:
+> - [x] Game Engine
+>   - [x] Three.JS integration
+>   - [x] Player model
+>   - [x] Object baseline
+> - [x] Multi-Level loader https://github.com/katamini/katamini/pull/8
+> - [ ] Multi-Player support https://github.com/katamini/katamini/pull/9
+>   - [x] trystero p2p
+>   - [ ] player "ghost mode"
+>   - [ ] object sync
+>   - [ ] death match
 
 > [!IMPORTANT]  
-> This game is a work of parody. All rights reserved by their respective owners.
+> This game is parody art. All rights reserved by their respective owners.
