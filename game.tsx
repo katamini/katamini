@@ -8,6 +8,10 @@ import { auraVertexShader, auraFragmentShader } from "./shaders/aura";
 import type { GameObject, GameState } from "./types/game";
 import { levels, getCurrentLevel, distributeObjects } from "./levels";
 import StartMenu from "./StartMenu";
+import { MultiplayerManager } from './multiplayer';
+import type { PlayerState } from './types/multiplayer';
+
+import { joinRoom } from 'trystero'; // trystero/torrent
 
 const Game: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -15,6 +19,9 @@ const Game: React.FC = () => {
   const blipSoundRef = useRef<HTMLAudioElement | null>(null);
   const playerRef = useRef<THREE.Mesh | null>(null);
   const collectedObjectsRef = useRef<THREE.Group | null>(null);
+  const multiplayerManagerRef = useRef<MultiplayerManager | null>(null);
+  const lastPositionRef = useRef<{x: number, y: number, z: number}>({ x: 0, y: 0, z: 0 });
+
   const finishedRef = useRef(false);
   const keysRef = useRef({
     ArrowUp: false,
@@ -42,6 +49,10 @@ const Game: React.FC = () => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+  const [isMultiplayer, setIsMultiplayer] = useState(false);
+  const [peerCount, setPeerCount] = useState(0);
+  const roomRef = useRef<any>(null);
 
   const detectMobileDevice = () => {
     return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -213,6 +224,73 @@ const Game: React.FC = () => {
     };
   }, []);
 
+  // Multiplayer System
+  useEffect(() => {
+	  if (
+	    multiplayerManagerRef.current && 
+	    playerRef.current && 
+	    currentLevelId && 
+	    !finishedRef.current
+	  ) {
+	    const player = playerRef.current;
+	    const direction = new THREE.Vector3(0, 0, -1);
+	    direction.applyQuaternion(player.quaternion);
+	    
+	    // Check if position has changed significantly (more than 0.01 units)
+	    const positionChanged = 
+	      Math.abs(player.position.x - lastPositionRef.current.x) > 0.01 ||
+	      Math.abs(player.position.y - lastPositionRef.current.y) > 0.01 ||
+	      Math.abs(player.position.z - lastPositionRef.current.z) > 0.01;
+	
+	    // If position changed significantly or other important states changed
+	    if (positionChanged) {
+	      lastPositionRef.current = {
+	        x: player.position.x,
+	        y: player.position.y,
+	        z: player.position.z
+	      };
+	      
+	      const playerState: PlayerState = {
+	        position: [player.position.x, player.position.y, player.position.z],
+	        direction: [direction.x, direction.y, direction.z],
+	        size: gameState.playerSize,
+	        collectedObjects: gameState.collectedObjects
+	      };
+	      
+	      multiplayerManagerRef.current.broadcastPlayerState(playerState);
+	    }
+	  }
+	}, [
+	  gameState.playerSize, 
+	  gameState.collectedObjects,
+	  // Only check position/rotation at a fixed interval
+	  Math.floor((Date.now() / 50)), // Check every 50ms
+	]);
+	
+  // Add a new effect for important state changes that should be instant
+  useEffect(() => {
+	  if (
+	    multiplayerManagerRef.current && 
+	    playerRef.current && 
+	    currentLevelId && 
+	    !finishedRef.current
+	  ) {
+	    const player = playerRef.current;
+	    const direction = new THREE.Vector3(0, 0, -1);
+	    direction.applyQuaternion(player.quaternion);
+	    
+	    const playerState: PlayerState = {
+	      position: [player.position.x, player.position.y, player.position.z],
+	      direction: [direction.x, direction.y, direction.z],
+	      size: gameState.playerSize,
+	      collectedObjects: gameState.collectedObjects
+	    };
+	    
+	    // Force immediate broadcast for important state changes
+	    multiplayerManagerRef.current.forceBroadcastPlayerState(playerState);
+	  }
+  }, [gameState.playerSize, gameState.collectedObjects.length]); // Only trigger on important changes
+	
   // Music system
   useEffect(() => {
 	  let audio: HTMLAudioElement | null = null;
@@ -265,6 +343,38 @@ const Game: React.FC = () => {
 	  };
   }, [currentLevelId, userInteracted]);
 
+  // P2p Setup
+  useEffect(() => {
+    if (currentLevelId) {
+      const currentLevel = getCurrentLevel(currentLevelId);
+      if (currentLevel.multiplayer) {
+	setIsMultiplayer(true);
+	const gameId = "katamini-";
+        const room = joinRoom({ appId: gameId + currentLevel.multiplayer }, currentLevelId);
+        roomRef.current = room;
+	if (window) window.room = roomRef.current;
+	// Count current player as 1 base
+        room.onPeerJoin(() => {
+		const count = Object.keys(room.getPeers()).length - 1 || 1;
+		setPeerCount( count > 0 ? count : 1 );
+	});
+        room.onPeerLeave(() => {
+		const count = Object.keys(room.getPeers()).length - 1 || 1;
+		setPeerCount( count > 0 ? count : 1 );
+	});
+      } else if (roomRef.current) {
+          roomRef.current.leave();
+          roomRef.current = null;
+      }
+    } else {
+	setIsMultiplayer(false);
+        if (roomRef.current) {
+          roomRef.current.leave();
+          roomRef.current = null;
+	  if (window.room) window.room = null;
+        }
+    }
+  }, [currentLevelId]);
 
 
   // Main game setup and loop
@@ -539,6 +649,32 @@ const Game: React.FC = () => {
     camera.position.copy(player.position).add(cameraOffset);
     camera.lookAt(player.position);
 
+    if (currentLevel.multiplayer && roomRef.current) {
+	  multiplayerManagerRef.current = new MultiplayerManager(roomRef.current, scene);	  
+	  // Initialize last position
+	  if (playerRef.current) {
+	    lastPositionRef.current = {
+	      x: playerRef.current.position.x,
+	      y: playerRef.current.position.y,
+	      z: playerRef.current.position.z
+	    };
+	  }
+	  // Set up handler for when other players collect objects
+	  multiplayerManagerRef.current.setOnObjectCollected((objectId: string) => {
+	    objects.forEach((object, index) => {
+	      if (object.uuid === objectId) {
+	        scene.remove(object);
+	        const aura = auras[index];
+	        if (aura) {
+	          aura.visible = false;
+	          aura.parent?.remove(aura);
+	        }
+	        totalObjects--;
+	      }
+	    });
+	  });
+    }
+
     let startTime = Date.now();
 
     // Game loop
@@ -654,6 +790,39 @@ const Game: React.FC = () => {
 
         if (distance < combinedRadius) {
           if (object.userData.size <= Math.max(gameState.playerSize * 1.2, smallestObject.userData.size)) {
+
+	    // Broadcast object collection in multiplayer
+	    if (multiplayerManagerRef.current) {
+		  const peerMeshes = multiplayerManagerRef.current.getPeerMeshes();
+		  const peerStates = multiplayerManagerRef.current.getPeerStates();
+		  
+		  peerMeshes.forEach((peerMesh, peerId) => {
+		    const peerState = peerStates.get(peerId);
+		    if (!peerState) return;
+		
+		    // Check collision with peer
+		    const distance = player.position.distanceTo(peerMesh.position);
+		    const combinedRadius = player.scale.x * 0.5 + peerMesh.scale.x * 0.5;
+		    
+		    if (distance < combinedRadius) {
+		      // Bounce off peers like objects
+		      collisionOccurred = true;
+		      const pushDirection = player.position.clone()
+		        .sub(peerMesh.position)
+		        .normalize();
+		      playerVelocity.reflect(pushDirection).multiplyScalar(bounceForce);
+		
+		      // Squish effect
+		      player.scale.x *= 0.95;
+		      player.scale.z *= 1.05;
+		      setTimeout(() => {
+		        player.scale.x /= 0.95;
+		        player.scale.z /= 1.05;
+		      }, 100);
+		    }
+		  });
+	    }
+
             // Object collection logic
             scene.remove(object);
             const aura = auras[index];
@@ -780,9 +949,6 @@ const Game: React.FC = () => {
 	    console.log("Failed to play sound effect:", error);
 	  });
 	});
-
-
-
             cameraOffset.z = Math.max(2.5, player.scale.x * 3);
           } else {
             // Bounce off larger objects
@@ -841,6 +1007,57 @@ const Game: React.FC = () => {
     renderer.render(scene, camera);
   };
 
+  if (multiplayerManagerRef.current && roomRef.current) {
+	  const playerState: PlayerState = {
+	    position: [player.position.x, player.position.y, player.position.z],
+	    direction: [playerDirection.x, playerDirection.y, playerDirection.z],
+	    size: gameState.playerSize,
+	    collectedObjects: gameState.collectedObjects
+	  };
+	  multiplayerManagerRef.current.broadcastPlayerState(playerState);
+	  
+	  // Check for object stealing opportunities
+	  const peerMeshes = multiplayerManagerRef.current.getPeerMeshes();
+	  peerMeshes.forEach((peerMesh, peerId) => {
+	    const distance = player.position.distanceTo(peerMesh.position);
+	    const combinedRadius = player.scale.x * 0.5 + peerMesh.scale.x * 0.5;
+	    
+	    if (distance < combinedRadius) {
+	      // Only larger players can steal
+	      if (gameState.playerSize > peerMesh.scale.x * 4) {
+	        multiplayerManagerRef.current.attemptSteal(peerId);
+	        
+	        // Visual feedback for steal attempt
+	        const stealEffect = new THREE.Mesh(
+	          new THREE.SphereGeometry(0.5, 32, 32),
+	          new THREE.MeshBasicMaterial({
+	            color: 0xff0000,
+	            transparent: true,
+	            opacity: 0.5
+	          })
+	        );
+	        stealEffect.position.copy(peerMesh.position);
+	        scene.add(stealEffect);
+	        
+	        // Animate and remove the effect
+	        let scale = 1;
+	        const animateEffect = () => {
+	          scale *= 1.1;
+	          stealEffect.scale.setScalar(scale);
+	          stealEffect.material.opacity *= 0.9;
+	          
+	          if (stealEffect.material.opacity > 0.1) {
+	            requestAnimationFrame(animateEffect);
+	          } else {
+	            scene.remove(stealEffect);
+	          }
+	        };
+	        animateEffect();
+	      }
+	    }
+	  });
+	}
+
   // Handle window resize
   const onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -861,6 +1078,9 @@ const Game: React.FC = () => {
   return () => {
     window.removeEventListener("resize", onWindowResize);
     mountRef.current?.removeChild(renderer.domElement);
+    if (multiplayerManagerRef.current) {
+      multiplayerManagerRef.current.cleanup();
+    }
   };
 }, [currentLevelId]);
 
@@ -945,6 +1165,11 @@ return (
             <div style={centerDotStyles} />
           </div>
         )}
+	{isMultiplayer && (
+	<div style={{ position: 'fixed', bottom: '10px', right: '10px', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white', padding: '5px', borderRadius: '5px' }}>
+	  {`Players: ${peerCount + 1}`}
+	</div>
+	)}
       </>
     )}
   </>

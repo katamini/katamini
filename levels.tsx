@@ -202,7 +202,26 @@ const createLevel2Objects = (): GameObject[] => [
     color: "#FFD700",
     sound: "music/blips/01.mp3",
   },
-  // Add more level 2 specific objects
+  {
+    type: "pencil",
+    size: 5,
+    model: "models/pencil.glb",
+    position: [0, 0, 1],
+    rotation: [0, 0, 0],
+    scale: 1.5,
+    color: "#FFD700",
+    sound: "music/blips/01.mp3",
+  },
+  {
+    type: "pencil",
+    size: 10,
+    model: "models/pencil.glb",
+    position: [0, 0, 1],
+    rotation: [0, 0, 0],
+    scale: 2,
+    color: "#FFD700",
+    sound: "music/blips/01.mp3",
+  },
 ];
 
 const createLevel3Objects = (): GameObject[] => [
@@ -312,6 +331,7 @@ export const levels: LevelConfig[] = [
     backgroundMusic: ["music/katamini_03.mp3", "music/katamini_04.mp3"],
     wallTexture: "textures/wall_shoji.png",
     floorTexture: "textures/floor_parquet.jpg",
+    multiplayer: "katamini-office-space",
   },
   {
     id: "level3",
@@ -319,7 +339,7 @@ export const levels: LevelConfig[] = [
     minZoom: 1,
     maxZoom: 10,
     zoom: 1,
-    roomSize: 6,
+    roomSize: 8,
     floorRepeat: [5,5],
     wallRepeat: [10,20],
     maxTime: 10, // 10 seconds
@@ -335,6 +355,7 @@ export const levels: LevelConfig[] = [
     ambientColor: "#88CCFF", // Outdoor lighting
     wallTexture: "textures/wall_stars.mp4",
     floorTexture: "textures/floor_dirt.png",
+    multiplayer: "katamini-gold-rush",
   }
 ];
 
