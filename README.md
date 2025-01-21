@@ -24,7 +24,8 @@
 > - [x] Game Engine
 >   - [x] Three.JS integration
 >   - [x] Player model
->   - [x] Object baseline
+>   - [x] Object baseline https://github.com/katamini/katamini/pull/4
+> - [x] Soundtrack https://github.com/katamini/katamini/pull/2 
 > - [x] Multi-Level loader https://github.com/katamini/katamini/pull/8
 > - [ ] Multi-Player support https://github.com/katamini/katamini/pull/9
 >   - [x] trystero p2p
